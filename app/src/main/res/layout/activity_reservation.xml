@@ -6,35 +6,67 @@
     android:layout_height="match_parent"
     tools:context=".ReservationActivity">
 
-    <AutoCompleteTextView
-        android:id="@+id/hotel_area_auto_edit"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:hint="@string/hotel_area_search_hint"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <AutoCompleteTextView
-        android:id="@+id/hotel_auto_edit"
-        android:layout_width="250dp"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/hotel_search_text"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:hint="@string/hotel_search_hint"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toStartOf="@+id/hotel_zone_search_text"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/hotel_area_auto_edit" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <AutoCompleteTextView
-        android:id="@+id/tour_auto_edit"
-        android:layout_width="250dp"
+        <AutoCompleteTextView
+            android:id="@+id/hotel_search_auto"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:scrollHorizontally="false"
+            android:hint="@string/hotel_search_hint"
+            style="@style/auto_search"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/hotel_zone_search_text"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:hint="@string/tour_search_hint"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/hotel_auto_edit" />
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/hotel_search_text"
+        app:layout_constraintEnd_toStartOf="@+id/tour_search_text"
+        app:layout_constraintHorizontal_bias=".5"
+        app:layout_constraintStart_toEndOf="@+id/hotel_search_text">
+
+        <AutoCompleteTextView
+            android:id="@+id/hotel_zone_auto"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="@string/hotel_area_search_hint"
+            style="@style/auto_search" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tour_search_text"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/hotel_zone_search_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/hotel_zone_search_text">
+
+        <AutoCompleteTextView
+            android:id="@+id/tour_auto"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="@string/tour_search_hint"
+            style="@style/auto_search"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/reservation_list"
@@ -44,5 +76,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tour_auto_edit" />
+        app:layout_constraintTop_toBottomOf="@+id/hotel_search_text" />
 </androidx.constraintlayout.widget.ConstraintLayout>

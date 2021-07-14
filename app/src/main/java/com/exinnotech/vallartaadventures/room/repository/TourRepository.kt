@@ -9,49 +9,40 @@ import com.android.volley.Request
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
 import com.exinnotech.vallartaadventures.Util
-import com.exinnotech.vallartaadventures.room.dao.ReservationDAO
+import com.exinnotech.vallartaadventures.room.dao.TourDAO
 import com.exinnotech.vallartaadventures.room.entity.Reservation
+import com.exinnotech.vallartaadventures.room.entity.Tour
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-// Declares the DAO as a private property in the constructor. Pass in the DAO
-// instead of the whole database, because you only need access to the DAO
-class ReservationRepository(private val reservationDAO: ReservationDAO, context: Context) {
+class TourRepository(private val tourDAO: TourDAO, context: Context) {
     private val queue = Volley.newRequestQueue(context)
-    // Room executes all queries on a separate thread.
-    // Observed Flow will notify the observer when the data has changed.
-    //val getReservations: Flow<List<Reservation>> = reservationDAO.getReservations()
 
-    //Example of retrieval
-    fun getReservations() : Flow<List<Reservation>> {
-        //Check if data has already been fetched
+    fun getTourNames(): Flow<List<Tour>> {
         //TODO: Check if the daily data has been fetched, if not, then delete old data en fetch again
-        checkReservations()
-       // Returns a Flow object directly from the database.
-       return reservationDAO.getReservations()
-   }
+        checkTours()
+        // Returns a Flow object directly from the database.
+        return tourDAO.getTourNames()
+    }
 
-
-    private fun checkReservations(){
-        Log.d("Current Time",Util().reservationURL)
-        val listExists = reservationDAO.getReservations()
+    private fun checkTours(){
+        val listExists = tourDAO.getTourNames()
         if(listExists.asLiveData().value.isNullOrEmpty()){
-            val jsonArrayRequestReservations = JsonArrayRequest(
-                Request.Method.GET, Util().reservationURL, null,
+            val jsonArrayRequestTours = JsonArrayRequest(
+                Request.Method.GET, Util().tourURL, null,
                 { response ->
                     try {
                         CoroutineScope(Dispatchers.IO).launch {
                             for (i in 0 until response.length()) {
                                 val jsonObject = response.getJSONObject(i)
-                                val reservation = Reservation(
-                                    jsonObject.getInt("reservation_id"),
-                                    jsonObject.getString("name"),
-                                    jsonObject.getString("confirmation_code"),
-                                    jsonObject.getString("agency_name")
+                                val tour = Tour(
+                                    jsonObject.getInt("idTour"),
+                                    jsonObject.getString("nombreTour"),
+                                    jsonObject.getString("Descripcion"),
                                 )
-                                reservationDAO.insert(reservation)
+                                tourDAO.insert(tour)
                             }
                         }
                     }catch (e: Exception){
@@ -62,12 +53,12 @@ class ReservationRepository(private val reservationDAO: ReservationDAO, context:
                     Log.d("Error", error.toString())
                 }
             )
-            jsonArrayRequestReservations.retryPolicy = DefaultRetryPolicy(
+            jsonArrayRequestTours.retryPolicy = DefaultRetryPolicy(
                 15000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
             )
-            queue.add(jsonArrayRequestReservations)
+            queue.add(jsonArrayRequestTours)
         }
     }
 
@@ -76,8 +67,7 @@ class ReservationRepository(private val reservationDAO: ReservationDAO, context:
     // off the main thread.
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun insert(reservation: Reservation) {
-        reservationDAO.insert(reservation)
+    suspend fun insert(tour: Tour) {
+        tourDAO.insert(tour)
     }
-
 }

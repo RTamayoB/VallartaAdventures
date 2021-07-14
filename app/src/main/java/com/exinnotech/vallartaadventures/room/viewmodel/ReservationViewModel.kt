@@ -1,4 +1,4 @@
-package com.exinnotech.vallartaadventures.room
+package com.exinnotech.vallartaadventures.room.viewmodel
 
 import androidx.lifecycle.*
 import com.exinnotech.vallartaadventures.room.entity.Reservation

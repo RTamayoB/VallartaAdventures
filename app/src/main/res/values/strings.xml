@@ -16,7 +16,7 @@
     <string name="name_lbl">Nombre:</string>
     <string name="confirmation_number_lbl">Confirma:</string>
     <string name="tour_lbl">Tour:</string>
-    <string name="tour_search_hint">Nombre del Tour</string>
-    <string name="hotel_search_hint">Nombre del Hotel</string>
+    <string name="tour_search_hint">Tour</string>
+    <string name="hotel_search_hint">Hotel</string>
     <string name="hotel_area_search_hint">Zona Hotelera</string>
 </resources>
