@@ -13,12 +13,11 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
-import com.android.volley.toolbox.Volley
 import com.exinnotech.vallartaadventures.databinding.ActivityLoginBinding
 
 import com.exinnotech.vallartaadventures.R
 import com.exinnotech.vallartaadventures.ReservationActivity
-import com.exinnotech.vallartaadventures.api.APIConnection
+import com.exinnotech.vallartaadventures.SearchActivity
 
 class LoginActivity : AppCompatActivity() {
 
@@ -111,6 +110,8 @@ class LoginActivity : AppCompatActivity() {
             "$welcome $displayName",
             Toast.LENGTH_LONG
         ).show()
+        val intent = Intent(this, SearchActivity::class.java)
+        startActivity(intent)
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {

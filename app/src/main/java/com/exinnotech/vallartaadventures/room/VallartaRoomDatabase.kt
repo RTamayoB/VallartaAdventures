@@ -1,17 +1,23 @@
 package com.exinnotech.vallartaadventures.room
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import com.exinnotech.vallartaadventures.room.dao.ReservationDAO
-import com.exinnotech.vallartaadventures.room.entities.Reservation
+import com.exinnotech.vallartaadventures.room.entity.Reservation
 
 // Annotates class to be a Room Database with a table (entity) of the Word class
-@Database(entities = arrayOf(Reservation::class), version = 1, exportSchema = false)
+@Database(
+    entities = arrayOf(Reservation::class),
+    version = 1,
+    exportSchema = false
+)
 public abstract class VallartaRoomDatabase : RoomDatabase() {
 
-    abstract fun wordDao(): ReservationDAO
+    abstract fun reservationDao(): ReservationDAO
 
     companion object {
         // Singleton prevents multiple instances of database opening at the
@@ -26,7 +32,7 @@ public abstract class VallartaRoomDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     VallartaRoomDatabase::class.java,
-                    "vallarta_db"
+                    "vallarta_db",
                 ).build()
                 INSTANCE = instance
                 // return instance

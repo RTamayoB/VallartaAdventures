@@ -5,11 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.exinnotech.vallartaadventures.room.entities.Reservation
+import com.exinnotech.vallartaadventures.room.entity.Reservation
 
-var data = listOf<Reservation>()
-
-class ReservationAdapter: RecyclerView.Adapter<MyViewHolder>() {
+class ReservationAdapter(var data: List<Reservation>): RecyclerView.Adapter<MyViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         return MyViewHolder.create(parent)
     }
@@ -31,10 +29,8 @@ class MyViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
     val tourText: TextView = itemView.findViewById(R.id.tour_text)
 
     fun bind(item: Reservation){
-        nameText.text = item.clientName
         confNumText.text = item.confNum
-        tourText.text = item.tour
-
+        nameText.text = item.clientName
     }
 
     companion object {

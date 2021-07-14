@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: Delete cleartextTraffic -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.exinnotech.vallartaadventures">
 
@@ -23,7 +24,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".SearchActivity">
 
         </activity>
     </application>

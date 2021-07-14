@@ -1,7 +1,8 @@
 package com.exinnotech.vallartaadventures.room
 
 import androidx.lifecycle.*
-import com.exinnotech.vallartaadventures.room.entities.Reservation
+import com.exinnotech.vallartaadventures.room.entity.Reservation
+import com.exinnotech.vallartaadventures.room.repository.ReservationRepository
 import kotlinx.coroutines.launch
 
 class ReservationViewModel(private val repository: ReservationRepository): ViewModel() {
@@ -10,7 +11,7 @@ class ReservationViewModel(private val repository: ReservationRepository): ViewM
     // - We can put an observer on the data (instead of polling for changes) and only update the
     //   the UI when the data actually changes.
     // - Repository is completely separated from the UI through the ViewModel.
-    val getReservations: LiveData<List<Reservation>> = repository.getReservations.asLiveData()
+    val getReservations: LiveData<List<Reservation>> = repository.getReservations().asLiveData()
 
     /**
      * Launching a new coroutine to insert the data in a non-blocking way
