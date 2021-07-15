@@ -31,7 +31,7 @@ class TourRepository(private val tourDAO: TourDAO, context: Context) {
         val listExists = tourDAO.getTourNames()
         if(listExists.asLiveData().value.isNullOrEmpty()){
             val jsonArrayRequestTours = JsonArrayRequest(
-                Request.Method.GET, Util().tourURL, null,
+                Request.Method.GET, Util("0").tourURL, null,
                 { response ->
                     try {
                         CoroutineScope(Dispatchers.IO).launch {

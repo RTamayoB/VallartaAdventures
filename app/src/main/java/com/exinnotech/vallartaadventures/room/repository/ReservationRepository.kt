@@ -15,11 +15,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 // Declares the DAO as a private property in the constructor. Pass in the DAO
 // instead of the whole database, because you only need access to the DAO
 class ReservationRepository(private val reservationDAO: ReservationDAO, context: Context) {
     private val queue = Volley.newRequestQueue(context)
+    val shared = context.getSharedPreferences("searchPreferences",0)
     // Room executes all queries on a separate thread.
     // Observed Flow will notify the observer when the data has changed.
     //val getReservations: Flow<List<Reservation>> = reservationDAO.getReservations()
@@ -35,39 +38,56 @@ class ReservationRepository(private val reservationDAO: ReservationDAO, context:
 
 
     private fun checkReservations(){
-        Log.d("Current Time",Util().reservationURL)
-        val listExists = reservationDAO.getReservations()
-        if(listExists.asLiveData().value.isNullOrEmpty()){
-            val jsonArrayRequestReservations = JsonArrayRequest(
-                Request.Method.GET, Util().reservationURL, null,
-                { response ->
-                    try {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            for (i in 0 until response.length()) {
-                                val jsonObject = response.getJSONObject(i)
-                                val reservation = Reservation(
-                                    jsonObject.getInt("reservation_id"),
-                                    jsonObject.getString("name"),
-                                    jsonObject.getString("confirmation_code"),
-                                    jsonObject.getString("agency_name")
-                                )
-                                reservationDAO.insert(reservation)
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd",Locale.US)
+        val currentDate = dateFormat.format(Date())
+        val storedDate = shared.getString("date","0000-00-00")
+        Log.d("Current", currentDate)
+        Log.d("Stored",storedDate!!)
+        if(storedDate != currentDate){
+            shared.edit().putString("date", currentDate).apply()
+            Log.d("Current Time",Util(currentDate).reservationURL)
+            val listExists = reservationDAO.getReservations()
+            if(listExists.asLiveData().value.isNullOrEmpty()){
+                val jsonArrayRequestReservations = JsonArrayRequest(
+                    Request.Method.GET, Util(currentDate).reservationURL, null,
+                    { response ->
+                        try {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                for (i in 0 until response.length()) {
+                                    val jsonObject = response.getJSONObject(i)
+                                    val reservation = Reservation(
+                                        jsonObject.getInt("reservation_id"),
+                                        jsonObject.getString("name"),
+                                        jsonObject.getString("confirmation_code"),
+                                        jsonObject.getString("agency_name"),
+                                        jsonObject.getString("hotel_name"),
+                                        jsonObject.getString("idioma"),
+                                        jsonObject.getString("registration_date"),
+                                        jsonObject.getString("email_main_pax"),
+                                        jsonObject.getString("phone_main_pax"),
+                                        jsonObject.getInt("total")
+                                    )
+                                    reservationDAO.insert(reservation)
+                                }
                             }
+                        }catch (e: Exception){
+                            Log.d("Error handling data", e.toString())
                         }
-                    }catch (e: Exception){
-                        Log.d("Error handling data", e.toString())
+                    },
+                    { error ->
+                        Log.d("Error", error.toString())
                     }
-                },
-                { error ->
-                    Log.d("Error", error.toString())
-                }
-            )
-            jsonArrayRequestReservations.retryPolicy = DefaultRetryPolicy(
-                15000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-            )
-            queue.add(jsonArrayRequestReservations)
+                )
+                jsonArrayRequestReservations.retryPolicy = DefaultRetryPolicy(
+                    15000,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+                )
+                queue.add(jsonArrayRequestReservations)
+            }
+        }
+        else{
+            Log.d("Update","Not required")
         }
     }
 

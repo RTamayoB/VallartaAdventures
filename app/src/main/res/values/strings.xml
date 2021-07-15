@@ -19,4 +19,25 @@
     <string name="tour_search_hint">Tour</string>
     <string name="hotel_search_hint">Hotel</string>
     <string name="hotel_area_search_hint">Zona Hotelera</string>
+    <string name="reserv_information">Información de la Reservación</string>
+
+    <string name="tour_label">Tour:</string>
+    <string name="confirmation_num_label">Confirma:</string>
+    <string name="coupon_label">Coupon:</string>
+    <string name="guest_label">Huesped:</string>
+    <string name="email_label">Email:</string>
+    <string name="phone_label">Telefono:</string>
+    <string name="adults_label">Adultos:</string>
+    <string name="kids_label">Niños:</string>
+    <string name="agency_label">Agencia:</string>
+    <string name="hotel_label">Hotel:</string>
+    <string name="room_label">#HAB:</string>
+    <string name="language_label">Idioma:</string>
+    <string name="date_label">Fecha:</string>
+    <string name="pickup_label">Pickup:</string>
+    <string name="amount_label">Monto:</string>
+
+    <string name="do_checkin_button">Check In</string>
+    <string name="undo_checkin_button">Cancelar Check In</string>
+
 </resources>

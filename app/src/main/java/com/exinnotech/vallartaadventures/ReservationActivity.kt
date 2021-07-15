@@ -1,19 +1,20 @@
 package com.exinnotech.vallartaadventures
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MotionEvent
+import android.view.*
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.exinnotech.vallartaadventures.adapter.ReservationAdapter
 import com.exinnotech.vallartaadventures.room.VallartaApplication
+import com.exinnotech.vallartaadventures.room.entity.Reservation
 import com.exinnotech.vallartaadventures.room.viewmodel.*
-import com.google.android.material.textfield.TextInputLayout
 
-class ReservationActivity : AppCompatActivity() {
+class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListener {
 
     private val reservationViewModel: ReservationViewModel by viewModels {
         ReservationViewModelFactory((application as VallartaApplication).reservationRepository)
@@ -29,15 +30,16 @@ class ReservationActivity : AppCompatActivity() {
 
     lateinit var hotelAuto: AutoCompleteTextView
     lateinit var tourAuto: AutoCompleteTextView
+    lateinit var reservationProgressBar: ProgressBar
+    var reservationList = emptyList<Reservation>()
     var adapter: ReservationAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reservation)
 
-        //TODO: Create the Classes for the Tours and Hotels
-
         val recyclerView = findViewById<RecyclerView>(R.id.reservation_list)
+        reservationProgressBar = findViewById(R.id.reservation_progressBar)
         hotelAuto = findViewById(R.id.hotel_search_auto)
         tourAuto = findViewById(R.id.tour_auto)
 
@@ -49,15 +51,22 @@ class ReservationActivity : AppCompatActivity() {
         reservationViewModel.getReservations.observe(this) { reservations ->
             // Update the cached copy of the reservations in the adapter.
             reservations.let {
-                adapter = ReservationAdapter(it)
+                recyclerView.visibility = View.INVISIBLE
+                reservationProgressBar.visibility = View.VISIBLE
+                reservationList = emptyList()
+                reservationList = it
+                adapter = ReservationAdapter(reservationList, this)
                 recyclerView.adapter = adapter
                 adapter!!.notifyDataSetChanged()
+                recyclerView.visibility = View.VISIBLE
+                reservationProgressBar.visibility = View.INVISIBLE
             }
         }
 
         hotelViewModel.getHotelNames.observe(this) { hotels ->
             hotels.let {
                 val hotelList = ArrayList<String>()
+                hotelList.add("TODOS")
                 for(hotel in it){
                     hotelList.add(hotel.name)
                 }
@@ -69,6 +78,7 @@ class ReservationActivity : AppCompatActivity() {
         tourViewModel.getTourNames.observe(this) { tours ->
             tours.let {
                 val tourList = ArrayList<String>()
+                tourList.add("TODOS")
                 for(tour in it){
                     tourList.add(tour.tourName)
                 }
@@ -84,6 +94,46 @@ class ReservationActivity : AppCompatActivity() {
         tourAuto.setOnClickListener {
             tourAuto.showDropDown()
         }
+
+        hotelAuto.setOnItemClickListener { adapterView, view, i, l ->
+
+        }
+
+
+    }
+
+    override fun onItemClick(reservation: Reservation) {
+
+        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupView: View = inflater.inflate(R.layout.client_check_in, null)
+
+        val widht : Int = LinearLayout.LayoutParams.WRAP_CONTENT
+        val height : Int = LinearLayout.LayoutParams.WRAP_CONTENT
+        val focusable = true
+        val popupWindow = PopupWindow(popupView, widht,height,focusable)
+
+        val guestText = popupView.findViewById<TextView>(R.id.guest_text)
+        val confNumText = popupView.findViewById<TextView>(R.id.confirmation_number_text)
+        val agencyText = popupView.findViewById<TextView>(R.id.agency_text)
+        val hotelText = popupView.findViewById<TextView>(R.id.hotel_text)
+        val languageText = popupView.findViewById<TextView>(R.id.language_text)
+        val dateText = popupView.findViewById<TextView>(R.id.date_text)
+        val emailText = popupView.findViewById<TextView>(R.id.email_text)
+        val phoneText = popupView.findViewById<TextView>(R.id.phone_text)
+        val amountText = popupView.findViewById<TextView>(R.id.amount_text)
+
+
+        guestText.text = reservation.clientName
+        confNumText.text = reservation.confNum
+        agencyText.text = reservation.agencyName
+        hotelText.text = reservation.hotelName
+        languageText.text = reservation.language
+        dateText.text = reservation.date.replace("T"," ")
+        emailText.text = reservation.email
+        phoneText.text = reservation.phone
+        amountText.text = reservation.amount.toString()
+
+        popupWindow.showAtLocation(findViewById(android.R.id.content), Gravity.CENTER, 0, 0)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

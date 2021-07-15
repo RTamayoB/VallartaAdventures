@@ -27,6 +27,14 @@
         <activity android:name=".SearchActivity">
 
         </activity>
+
+        <activity
+            android:name=".scanning.CaptureActivityPortrait"
+            android:screenOrientation="fullSensor"
+            android:stateNotNeeded="true"
+            android:theme="@style/zxing_CaptureTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

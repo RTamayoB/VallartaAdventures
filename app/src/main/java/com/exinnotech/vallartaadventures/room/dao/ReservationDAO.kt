@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ReservationDAO {
 
-    @Query("SELECT reservation_id, name, confirmation_code, agency_name FROM reservation_table")
+    @Query("SELECT reservation_id, name, confirmation_code, agency_name, hotel_name, idioma, registration_date, email_main_pax, phone_main_pax, total FROM reservation_table")
     fun getReservations(): Flow<List<Reservation>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

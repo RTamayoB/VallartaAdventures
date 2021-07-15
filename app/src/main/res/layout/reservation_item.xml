@@ -49,7 +49,7 @@
         app:layout_constraintStart_toEndOf="@+id/conf_num_label" />
 
     <TextView
-        android:id="@+id/tour_label"
+        android:id="@+id/tour_lbl"
         style="@style/reservation_item_labels"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -62,12 +62,12 @@
         app:layout_constraintTop_toBottomOf="@+id/conf_num_label" />
 
     <TextView
-        android:id="@+id/tour_text"
+        android:id="@+id/tour_txt"
         style="@style/reservation_item_values"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="Temp Text"
-        app:layout_constraintBaseline_toBaselineOf="@+id/tour_label"
-        app:layout_constraintStart_toEndOf="@+id/tour_label" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/tour_lbl"
+        app:layout_constraintStart_toEndOf="@+id/tour_lbl" />
 </androidx.constraintlayout.widget.ConstraintLayout>
