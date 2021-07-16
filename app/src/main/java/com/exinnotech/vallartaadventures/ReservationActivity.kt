@@ -9,6 +9,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.DefaultRetryPolicy
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.Volley
 import com.exinnotech.vallartaadventures.adapter.ReservationAdapter
 import com.exinnotech.vallartaadventures.room.VallartaApplication
 import com.exinnotech.vallartaadventures.room.entity.Reservation
@@ -103,6 +108,10 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
     }
 
     override fun onItemClick(reservation: Reservation) {
+        showReservationDetails(reservation)
+    }
+
+    fun showReservationDetails(reservation: Reservation){
 
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupView: View = inflater.inflate(R.layout.client_check_in, null)
@@ -121,6 +130,8 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
         val emailText = popupView.findViewById<TextView>(R.id.email_text)
         val phoneText = popupView.findViewById<TextView>(R.id.phone_text)
         val amountText = popupView.findViewById<TextView>(R.id.amount_text)
+        val doCheckInButton = popupView.findViewById<Button>(R.id.do_check_in_button)
+        val undoCheckInButton = popupView.findViewById<Button>(R.id.undo_check_in_button)
 
 
         guestText.text = reservation.clientName
@@ -134,6 +145,42 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
         amountText.text = reservation.amount.toString()
 
         popupWindow.showAtLocation(findViewById(android.R.id.content), Gravity.CENTER, 0, 0)
+
+        val queue = Volley.newRequestQueue(this)
+
+        doCheckInButton.setOnClickListener {
+            val doCheckInRequest = JsonArrayRequest(Request.Method.POST, "url", null,
+                { response ->
+                    Log.d("Response", response.toString())
+                },
+                { error ->
+                    Log.d("Error", error.toString())
+                })
+            doCheckInRequest.retryPolicy = DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            )
+
+            queue.add(doCheckInRequest)
+        }
+
+        undoCheckInButton.setOnClickListener {
+            val undoCheckInRequest = JsonArrayRequest(Request.Method.POST, "url", null,
+                { response ->
+                    Log.d("Response", response.toString())
+                },
+                { error ->
+                    Log.d("Error", error.toString())
+                })
+            undoCheckInRequest.retryPolicy = DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            )
+
+            queue.add(undoCheckInRequest)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

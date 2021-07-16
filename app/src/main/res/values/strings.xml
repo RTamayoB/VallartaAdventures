@@ -37,7 +37,7 @@
     <string name="pickup_label">Pickup:</string>
     <string name="amount_label">Monto:</string>
 
-    <string name="do_checkin_button">Check In</string>
-    <string name="undo_checkin_button">Cancelar Check In</string>
+    <string name="do_checkin_button">Abordar</string>
+    <string name="undo_checkin_button">Cancelar Abordar</string>
 
 </resources>
