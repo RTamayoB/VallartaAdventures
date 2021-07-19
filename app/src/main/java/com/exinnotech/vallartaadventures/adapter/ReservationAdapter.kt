@@ -50,7 +50,7 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
                     for(item in data){
                         //TODO(Add filtering for other filters)
                         if(item.confNum.lowercase().contains(searchItem.lowercase())
-                            || item.clientName.lowercase().contains(searchItem.lowercase())){
+                            || item.guestName.lowercase().contains(searchItem.lowercase())){
                             result.add(item)
                         }
                     }
@@ -86,7 +86,8 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
 
         fun bind(item: Reservation){
             confNumText.text = item.confNum
-            nameText.text = item.clientName
+            nameText.text = item.guestName
+            tourText.text = item.tourName
         }
     }
 

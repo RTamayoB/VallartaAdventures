@@ -82,4 +82,7 @@ dependencies {
     //Zxing
     implementation 'com.journeyapps:zxing-android-embedded:3.4.0'
     implementation 'com.google.zxing:core:3.2.1'
+
+    //ESCPOS
+    implementation 'com.github.anastaciocintra:escpos-coffee:4.0.1'
 }

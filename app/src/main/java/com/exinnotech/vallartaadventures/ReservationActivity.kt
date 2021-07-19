@@ -6,13 +6,19 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.exinnotech.vallartaadventures.adapter.ReservationAdapter
 import com.exinnotech.vallartaadventures.room.VallartaApplication
 import com.exinnotech.vallartaadventures.room.entity.Reservation
 import com.exinnotech.vallartaadventures.room.viewmodel.*
+import org.json.JSONObject
+import org.w3c.dom.Text
 
 class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListener {
 
@@ -103,37 +109,8 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
     }
 
     override fun onItemClick(reservation: Reservation) {
-
-        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val popupView: View = inflater.inflate(R.layout.client_check_in, null)
-
-        val widht : Int = LinearLayout.LayoutParams.WRAP_CONTENT
-        val height : Int = LinearLayout.LayoutParams.WRAP_CONTENT
-        val focusable = true
-        val popupWindow = PopupWindow(popupView, widht,height,focusable)
-
-        val guestText = popupView.findViewById<TextView>(R.id.guest_text)
-        val confNumText = popupView.findViewById<TextView>(R.id.confirmation_number_text)
-        val agencyText = popupView.findViewById<TextView>(R.id.agency_text)
-        val hotelText = popupView.findViewById<TextView>(R.id.hotel_text)
-        val languageText = popupView.findViewById<TextView>(R.id.language_text)
-        val dateText = popupView.findViewById<TextView>(R.id.date_text)
-        val emailText = popupView.findViewById<TextView>(R.id.email_text)
-        val phoneText = popupView.findViewById<TextView>(R.id.phone_text)
-        val amountText = popupView.findViewById<TextView>(R.id.amount_text)
-
-
-        guestText.text = reservation.clientName
-        confNumText.text = reservation.confNum
-        agencyText.text = reservation.agencyName
-        hotelText.text = reservation.hotelName
-        languageText.text = reservation.language
-        dateText.text = reservation.date.replace("T"," ")
-        emailText.text = reservation.email
-        phoneText.text = reservation.phone
-        amountText.text = reservation.amount.toString()
-
-        popupWindow.showAtLocation(findViewById(android.R.id.content), Gravity.CENTER, 0, 0)
+        val checkInPopupWindow = CheckInActivity(this,findViewById(android.R.id.content), reservation)
+        checkInPopupWindow.showCheckInPopup()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

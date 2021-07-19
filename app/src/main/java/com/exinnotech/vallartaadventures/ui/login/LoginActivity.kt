@@ -13,11 +13,13 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
+import com.exinnotech.vallartaadventures.CheckInActivity
 import com.exinnotech.vallartaadventures.databinding.ActivityLoginBinding
 
 import com.exinnotech.vallartaadventures.R
 import com.exinnotech.vallartaadventures.ReservationActivity
 import com.exinnotech.vallartaadventures.SearchActivity
+import com.exinnotech.vallartaadventures.room.entity.Reservation
 
 class LoginActivity : AppCompatActivity() {
 
@@ -34,6 +36,7 @@ class LoginActivity : AppCompatActivity() {
         val password = binding.password
         val login = binding.login
         val loading = binding.loading
+        val tryPrint = binding.tryPrintButton
 
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory())
             .get(LoginViewModel::class.java)
@@ -98,6 +101,32 @@ class LoginActivity : AppCompatActivity() {
                 loading.visibility = View.VISIBLE
                 loginViewModel.login(username.text.toString(), password.text.toString())
             }
+        }
+
+        tryPrint.setOnClickListener {
+            val reservation = Reservation(
+                1,
+                1,
+                "Israel",
+                "A123BC",
+                "Agencia 1",
+                "Miravalle",
+                "1",
+                "Tour Altavista",
+                "Español",
+                "2021-07-15T12:00:00",
+                "micorreo@gmail.com",
+                "3313560433",
+                1000,
+                "A123BC",
+                "13:00:00",
+                1000,
+                1,
+                1,
+                1
+            )
+            val checkInPopupWindow = CheckInActivity(this,findViewById(android.R.id.content), reservation)
+            checkInPopupWindow.doPrinting(reservation)
         }
     }
 

@@ -19,6 +19,10 @@ class ReservationViewModel(private val repository: ReservationRepository): ViewM
     fun insert(reservation: Reservation) = viewModelScope.launch {
          repository.insert(reservation)
     }
+
+    fun getReservationsByConfNum(confNum: String): LiveData<Reservation> {
+        return repository.getReservationByConfNum(confNum)
+    }
 }
 
 class ReservationViewModelFactory(private val repository: ReservationRepository) : ViewModelProvider.Factory {
