@@ -10,23 +10,36 @@ import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
 import com.exinnotech.vallartaadventures.Util
 import com.exinnotech.vallartaadventures.room.dao.TourDAO
-import com.exinnotech.vallartaadventures.room.entity.Reservation
 import com.exinnotech.vallartaadventures.room.entity.Tour
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
+/**
+ * Repository for Tour. This is used to manage the way to fetch information, either it be cached
+ * from the phone's sql database or getting it from the API
+ *
+ * @property TourDAO an instance of the DAO for tours
+ * @param context The context of the activity
+ */
 class TourRepository(private val tourDAO: TourDAO, context: Context) {
     private val queue = Volley.newRequestQueue(context)
 
+    /**
+     * Gets the data either locally or from the API
+     *
+     * @return List of tour objects
+     */
     fun getTourNames(): Flow<List<Tour>> {
-        //TODO: Check if the daily data has been fetched, if not, then delete old data en fetch again
         checkTours()
-        // Returns a Flow object directly from the database.
+
         return tourDAO.getTourNames()
     }
 
+    /**
+     * Checks if list of tours exists and returns it, if not it fetches the API
+     */
     private fun checkTours(){
         val listExists = tourDAO.getTourNames()
         if(listExists.asLiveData().value.isNullOrEmpty()){
@@ -62,9 +75,11 @@ class TourRepository(private val tourDAO: TourDAO, context: Context) {
         }
     }
 
-    // By default Room runs suspend queries off the main thread, therefore, we don't need to
-    // implement anything else to ensure we're not doing long running database work
-    // off the main thread.
+    /**
+     * Inserts a tour into the table
+     *
+     * @param tour Tour to insert
+     */
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun insert(tour: Tour) {

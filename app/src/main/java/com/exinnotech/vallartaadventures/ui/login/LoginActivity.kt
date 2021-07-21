@@ -115,15 +115,19 @@ class LoginActivity : AppCompatActivity() {
                 "Tour Altavista",
                 "Español",
                 "2021-07-15T12:00:00",
+                "2021-07-15T12:00:00",
+                "2021-07-18T13:00:00",
                 "micorreo@gmail.com",
                 "3313560433",
                 1000,
                 "A123BC",
-                "13:00:00",
+                "10:00:00",
                 1000,
                 1,
                 1,
-                1
+                1,
+                1,
+                17,
             )
             val checkInPopupWindow = CheckInActivity(this,findViewById(android.R.id.content), reservation)
             checkInPopupWindow.doPrinting(reservation)

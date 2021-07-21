@@ -40,11 +40,22 @@ var readBufferPosition = 0
 @Volatile
 var stopWorker = false
 
+/**
+ * This class handles the popup to show the details of the reservation, as well to handle the check in methods
+ * TODO: Divide the Scanning and Popup processes, Make location a class variable
+ *
+ * @property activity Activity from where the action is being performed
+ * @property location Location to show the view
+ * @property reservation Reservation picked to draw the data from
+ */
 class CheckInActivity(val activity: Activity, val location: View, val reservation: Reservation) {
 
     val queue = Volley.newRequestQueue(activity.applicationContext)
 
 
+    /**
+     * Inflates the view and shows the popup, and handles the check in methods
+     */
     fun showCheckInPopup() {
         val inflater = activity.applicationContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupView: View = inflater.inflate(R.layout.client_check_in, null)
@@ -92,6 +103,9 @@ class CheckInActivity(val activity: Activity, val location: View, val reservatio
 
         popupWindow.showAtLocation(location, Gravity.CENTER, 0, 0)
 
+        /**
+         * Does the check in
+         */
         doCheckIn.setOnClickListener {
             val contents = JSONObject()
             contents.put("idReserva", reservation.reservDetailId)
@@ -113,6 +127,9 @@ class CheckInActivity(val activity: Activity, val location: View, val reservatio
             queue.add(changeStatusRequest)
         }
 
+        /**
+         * Cancles the check in
+         */
         undoCheckIn.setOnClickListener {
             val contents = JSONObject()
             contents.put("idReserva", reservation.reservDetailId)

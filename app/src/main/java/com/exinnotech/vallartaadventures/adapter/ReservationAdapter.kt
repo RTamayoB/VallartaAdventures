@@ -10,6 +10,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.exinnotech.vallartaadventures.R
 import com.exinnotech.vallartaadventures.room.entity.Reservation
 
+/**
+ * Adapter to use in the Recycler view for the reservation list
+ *
+ * @constructor
+ * Initializes the data
+ *
+ * @param data List of reservations
+ * @param onItemListener ItemListener to add onClick functionality
+ */
 class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener): RecyclerView.Adapter<ReservationAdapter.MyViewHolder>(), Filterable {
 
     var data = emptyList<Reservation>()
@@ -22,6 +31,13 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
         mOnItemListener = onItemListener
     }
 
+    /**
+     * Inflates the layout of the item
+     *
+     * @param parent Parent of the layout
+     * @param viewType
+     * @return¨The ViewHolder (MyViewHolder class)
+     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val view: View = LayoutInflater.from(parent.context)
             .inflate(R.layout.reservation_item, parent, false)
@@ -29,16 +45,29 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
         return MyViewHolder(view, mOnItemListener)
     }
 
+    /**
+     * Binds the data to the item
+     *
+     * @param holder The ViewHolder
+     * @param position Position of the item
+     */
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val item = dataFiltered[position]
         holder.bind(item)
     }
 
+    /**
+     * @return The number of items on the list
+     */
     override fun getItemCount(): Int {
         return dataFiltered.size
     }
 
-    //Filtering works as follows name/confNum,zone,hotel,tour
+    /**
+     * Filters the list of reservations by the specified parameters
+     *
+     * @return Filtered list
+     */
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(p0: CharSequence?): FilterResults? {
@@ -69,6 +98,12 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
         }
     }
 
+    /**
+     * View Holder manages the instantiation of the layout views and binds the data
+     *
+     * @param itemView View of the item
+     * @param onItemListener Listener for the onClick method
+     */
     inner class MyViewHolder(itemView: View, onItemListener: OnItemListener):
         RecyclerView.ViewHolder(itemView), View.OnClickListener {
         val nameText: TextView = itemView.findViewById(R.id.name_text)

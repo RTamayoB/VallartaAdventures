@@ -7,7 +7,7 @@ import kotlinx.coroutines.launch
 
 class ReservationViewModel(private val repository: ReservationRepository): ViewModel() {
 
-    // Using LiveData and caching what allWords returns has several benefits:
+    // Using LiveData and caching what it returns returns has several benefits:
     // - We can put an observer on the data (instead of polling for changes) and only update the
     //   the UI when the data actually changes.
     // - Repository is completely separated from the UI through the ViewModel.
@@ -20,11 +20,22 @@ class ReservationViewModel(private val repository: ReservationRepository): ViewM
          repository.insert(reservation)
     }
 
+    /**
+     * Get the reservation by confirmation code
+     *
+     * @param confNum
+     * @return Reservation
+     */
     fun getReservationsByConfNum(confNum: String): LiveData<Reservation> {
         return repository.getReservationByConfNum(confNum)
     }
 }
 
+/**
+ * ViewModel Factory to instantiate the ViewModel
+ *
+ * @property repository The reservation repository
+ */
 class ReservationViewModelFactory(private val repository: ReservationRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ReservationViewModel::class.java)) {

@@ -19,25 +19,32 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-// Declares the DAO as a private property in the constructor. Pass in the DAO
-// instead of the whole database, because you only need access to the DAO
+/**
+ * Repository for Reservation. This is used to manage the way to fetch information, either it be cached
+ * from the phone's sql database or getting it from the API
+ *
+ * @property ReservationDAO an instance of the DAO for reservations
+ * @param context The context of the activity
+ */
 class ReservationRepository(private val reservationDAO: ReservationDAO, context: Context) {
     private val queue = Volley.newRequestQueue(context)
     val shared = context.getSharedPreferences("searchPreferences",0)
-    // Room executes all queries on a separate thread.
-    // Observed Flow will notify the observer when the data has changed.
-    //val getReservations: Flow<List<Reservation>> = reservationDAO.getReservations()
 
-    //Example of retrieval
+    /**
+     * Gets the data either locally or from the API
+     *
+     * @return List of reservation objects
+     */
     fun getReservations() : Flow<List<Reservation>> {
-        //Check if data has already been fetched
-        //TODO: Check if the daily data has been fetched, if not, then delete old data en fetch again
         checkReservations()
-       // Returns a Flow object directly from the database.
        return reservationDAO.getReservations()
    }
 
-
+    /**
+     * TODO: Add another check, to check if the list from the day grew, then fetch remaining reservations
+     * Checks if list of reservations from the current date exists and returns it, if not it fetches the API
+     *
+     */
     private fun checkReservations(){
         val dateFormat = SimpleDateFormat("yyyy-MM-dd",Locale.US)
         val currentDate = dateFormat.format(Date())
@@ -57,27 +64,30 @@ class ReservationRepository(private val reservationDAO: ReservationDAO, context:
                             CoroutineScope(Dispatchers.IO).launch {
                                 for (i in 0 until response.length()) {
                                     val jsonReservation = response.getJSONObject(i)
-                                    val jsonReservationDetail = jsonReservation.getJSONArray("items").getJSONObject(0)
                                     val reservation = Reservation(
                                         jsonReservation.getInt("reservation_id"),
-                                        jsonReservationDetail.getInt("reservation_detail_id"),
+                                        jsonReservation.getInt("reservation_detail_id"),
                                         jsonReservation.getString("guest_name"),
                                         jsonReservation.getString("confirmation_code"),
                                         jsonReservation.getString("agency_name"),
                                         jsonReservation.getString("hotel_name"),
                                         jsonReservation.getString("room"),
-                                        jsonReservationDetail.getString("tour_name"),
-                                        jsonReservation.getString("idioma"),
+                                        jsonReservation.getString("tour_name"),
+                                        jsonReservation.getString("language"),
                                         jsonReservation.getString("registration_date"),
+                                        jsonReservation.getString("reservation_date"),
+                                        jsonReservation.getString("checkin_date"),
                                         jsonReservation.getString("email_main_pax"),
                                         jsonReservation.getString("phone_main_pax"),
                                         jsonReservation.getInt("total"),
-                                        jsonReservationDetail.getString("numCupon"),
-                                        jsonReservationDetail.getString("pickup"),
-                                        jsonReservationDetail.getInt("montoPickup"),
-                                        jsonReservationDetail.getInt("adult_num"),
-                                        jsonReservationDetail.getInt("child_num"),
-                                        jsonReservationDetail.getInt("infant_num")
+                                        jsonReservation.getString("coupon"),
+                                        jsonReservation.getString("pickup"),
+                                        0,
+                                        jsonReservation.getInt("adult_num"),
+                                        jsonReservation.getInt("child_num"),
+                                        jsonReservation.getInt("infant_num"),
+                                        jsonReservation.getInt("vehiculo_num"),
+                                        jsonReservation.getInt("status"),
                                     )
                                     reservationDAO.insert(reservation)
                                 }
@@ -106,12 +116,23 @@ class ReservationRepository(private val reservationDAO: ReservationDAO, context:
     // By default Room runs suspend queries off the main thread, therefore, we don't need to
     // implement anything else to ensure we're not doing long running database work
     // off the main thread.
+    /**
+     * Inserts a reservation into the table
+     *
+     * @param reservation Reservation to insert
+     */
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun insert(reservation: Reservation) {
         reservationDAO.insert(reservation)
     }
 
+    /**
+     * Returns the reservation with matching confirmation_code
+     *
+     * @param confNum confirmation_code to look for
+     * @return Matching reservation
+     */
     @WorkerThread
     fun getReservationByConfNum(confNum: String): LiveData<Reservation> {
         return reservationDAO.getReservationById(confNum)
