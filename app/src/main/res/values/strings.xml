@@ -1,3 +1,43 @@
 <resources>
     <string name="app_name">VallartaAdventures</string>
+    <string name="title_activity_login">Vallarta Adventures</string>
+    <string name="prompt_email">Usuario</string>
+    <string name="prompt_password">Contraseña</string>
+    <string name="action_sign_in">Ingresar</string>
+    <string name="action_sign_in_short">Ingresar</string>
+    <string name="welcome">"Bienvenido !"</string>
+    <string name="invalid_username">Usuario no Válido</string>
+    <string name="invalid_password">Contraseña debe ser mayor a 5 caracteres</string>
+    <string name="login_failed">"Error en Login"</string>
+    <string name="chose_search_method">Elige el Metodo de Busqueda</string>
+    <string name="scan_code">Escanear Código</string>
+    <string name="search_coupon">Buscar Cupón</string>
+    <string name="coupon_hint">Cupon/ Num. Confirmación</string>
+    <string name="name_lbl">Nombre:</string>
+    <string name="confirmation_number_lbl">Confirma:</string>
+    <string name="tour_lbl">Tour:</string>
+    <string name="tour_search_hint">Tour</string>
+    <string name="hotel_search_hint">Hotel</string>
+    <string name="hotel_area_search_hint">Zona Hotelera</string>
+    <string name="reserv_information">Información de la Reservación</string>
+
+    <string name="tour_label">Tour:</string>
+    <string name="confirmation_num_label">Confirma:</string>
+    <string name="coupon_label">Coupon:</string>
+    <string name="guest_label">Huesped:</string>
+    <string name="email_label">Email:</string>
+    <string name="phone_label">Telefono:</string>
+    <string name="adults_label">Adultos:</string>
+    <string name="kids_label">Niños:</string>
+    <string name="agency_label">Agencia:</string>
+    <string name="hotel_label">Hotel:</string>
+    <string name="room_label">#HAB:</string>
+    <string name="language_label">Idioma:</string>
+    <string name="date_label">Fecha:</string>
+    <string name="pickup_label">Pickup:</string>
+    <string name="amount_label">Monto:</string>
+
+    <string name="do_checkin_button">Abordar</string>
+    <string name="undo_checkin_button">Cancelar <Abordar></Abordar></string>
+
 </resources>
