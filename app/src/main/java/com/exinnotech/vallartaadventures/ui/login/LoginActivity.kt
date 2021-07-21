@@ -9,10 +9,14 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.exinnotech.vallartaadventures.CheckInActivity
 import com.exinnotech.vallartaadventures.databinding.ActivityLoginBinding
 
@@ -38,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
         val loading = binding.loading
         val tryPrint = binding.tryPrintButton
 
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory())
+        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(this))
             .get(LoginViewModel::class.java)
 
         loginViewModel.loginFormState.observe(this@LoginActivity, Observer {
@@ -55,6 +59,7 @@ class LoginActivity : AppCompatActivity() {
             }
         })
 
+        /*
         loginViewModel.loginResult.observe(this@LoginActivity, Observer {
             val loginResult = it ?: return@Observer
 
@@ -69,7 +74,7 @@ class LoginActivity : AppCompatActivity() {
 
             //Complete and destroy login activity once successful
             finish()
-        })
+        })*/
 
         username.afterTextChanged {
             loginViewModel.loginDataChanged(
@@ -98,8 +103,40 @@ class LoginActivity : AppCompatActivity() {
             }
 
             login.setOnClickListener {
+                /*
                 loading.visibility = View.VISIBLE
                 loginViewModel.login(username.text.toString(), password.text.toString())
+                 */
+                loading.visibility = View.VISIBLE
+                val queue = Volley.newRequestQueue(this@LoginActivity)
+
+                val jsonArrayRequestTours = StringRequest(
+                    Request.Method.GET, "http://exinnot.ddns.net:10900/AppUsuarios/CheckUser?UserName=${username.text.toString()}&Password=${password.text.toString()}",
+                    { response ->
+                        loading.visibility = View.INVISIBLE
+                        Log.d("Result", response.toString())
+                        val shared = context.getSharedPreferences("login",0)
+                        shared.edit().putString("uid", response).apply()
+                        shared.edit().putString("username", username.text.toString()).apply()
+                        Toast.makeText(
+                            applicationContext,
+                            "Bienvenido ${username.text.toString()}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        val intent = Intent(this@LoginActivity, SearchActivity::class.java)
+                        startActivity(intent)
+                    },
+                    { error ->
+                        loading.visibility = View.INVISIBLE
+                        Log.d("Error", error.toString())
+                        Toast.makeText(
+                            applicationContext,
+                            "Error en Login",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                )
+                queue.add(jsonArrayRequestTours)
             }
         }
 
@@ -143,8 +180,6 @@ class LoginActivity : AppCompatActivity() {
             "$welcome $displayName",
             Toast.LENGTH_LONG
         ).show()
-        val intent = Intent(this, SearchActivity::class.java)
-        startActivity(intent)
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {
