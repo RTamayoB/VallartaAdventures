@@ -25,7 +25,6 @@ import kotlinx.coroutines.launch
  */
 class TourRepository(private val tourDAO: TourDAO, context: Context) {
     private val queue = Volley.newRequestQueue(context)
-
     /**
      * Gets the data either locally or from the API
      *
@@ -44,7 +43,7 @@ class TourRepository(private val tourDAO: TourDAO, context: Context) {
         val listExists = tourDAO.getTourNames()
         if(listExists.asLiveData().value.isNullOrEmpty()){
             val jsonArrayRequestTours = JsonArrayRequest(
-                Request.Method.GET, Util("0").tourURL, null,
+                Request.Method.GET, Util("0","NULL").tourURL, null,
                 { response ->
                     try {
                         CoroutineScope(Dispatchers.IO).launch {

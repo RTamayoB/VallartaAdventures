@@ -1,6 +1,5 @@
 package com.exinnotech.vallartaadventures.ui.login
 
-import android.app.Activity
 import android.content.Intent
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -14,18 +13,25 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.viewModels
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.exinnotech.vallartaadventures.CheckInActivity
 import com.exinnotech.vallartaadventures.databinding.ActivityLoginBinding
-
 import com.exinnotech.vallartaadventures.R
-import com.exinnotech.vallartaadventures.ReservationActivity
 import com.exinnotech.vallartaadventures.SearchActivity
+import com.exinnotech.vallartaadventures.room.VallartaApplication
 import com.exinnotech.vallartaadventures.room.entity.Reservation
+import com.exinnotech.vallartaadventures.room.viewmodel.ReservationViewModel
+import com.exinnotech.vallartaadventures.room.viewmodel.ReservationViewModelFactory
+import com.exinnotech.vallartaadventures.scanning.ScanActivity
 
 class LoginActivity : AppCompatActivity() {
+
+    //TODO: Remove test print data
+    private val reservationViewModel: ReservationViewModel by viewModels {
+        ReservationViewModelFactory((application as VallartaApplication).reservationRepository)
+    }
 
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var binding: ActivityLoginBinding
@@ -166,8 +172,9 @@ class LoginActivity : AppCompatActivity() {
                 1,
                 17,
             )
-            val checkInPopupWindow = CheckInActivity(this,findViewById(android.R.id.content), reservation)
-            checkInPopupWindow.doPrinting(reservation)
+            val printer = ScanActivity(this, reservation)
+            printer.connectPrinter()
+            printer.printPasses(reservation)
         }
     }
 

@@ -8,6 +8,7 @@ import androidx.lifecycle.asLiveData
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.JsonRequest
 import com.android.volley.toolbox.Volley
 import com.exinnotech.vallartaadventures.Util
 import com.exinnotech.vallartaadventures.room.dao.ReservationDAO
@@ -16,8 +17,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 /**
  * Repository for Reservation. This is used to manage the way to fetch information, either it be cached
@@ -29,6 +32,7 @@ import java.util.*
 class ReservationRepository(private val reservationDAO: ReservationDAO, context: Context) {
     private val queue = Volley.newRequestQueue(context)
     val shared = context.getSharedPreferences("searchPreferences",0)
+    val login = context.getSharedPreferences("login",0)
 
     /**
      * Gets the data either locally or from the API
@@ -46,19 +50,26 @@ class ReservationRepository(private val reservationDAO: ReservationDAO, context:
      *
      */
     private fun checkReservations(){
+        val uid = login.getString("uid","NULL")
         val dateFormat = SimpleDateFormat("yyyy-MM-dd",Locale.US)
         val currentDate = dateFormat.format(Date())
         val storedDate = shared.getString("date","0000-00-00")
+        val params: MutableMap<String, Any> = HashMap()
+        params["fecha_reservacion_inicio"] = currentDate;
+        params["fecha_reservacion_fin"] = currentDate;
+        params["UserId"] = uid!!
+        params["pickup"] = true
+
         Log.d("Current", currentDate)
         Log.d("Stored",storedDate!!)
         if(storedDate != currentDate){
             shared.edit().putString("date", currentDate).apply()
             //TODO: Remove test URL
-            Log.d("Current Time",Util(currentDate).testURL)
+            Log.d("Current Time",Util(currentDate, uid!!).reservationURL)
             val listExists = reservationDAO.getReservations()
             if(listExists.asLiveData().value.isNullOrEmpty()){
                 val jsonArrayRequestReservations = JsonArrayRequest(
-                    Request.Method.GET, Util(currentDate).testURL, null,
+                    Request.Method.GET, Util(currentDate, uid!!).reservationURL.replace("\"",""), null,
                     { response ->
                         try {
                             CoroutineScope(Dispatchers.IO).launch {
@@ -125,6 +136,17 @@ class ReservationRepository(private val reservationDAO: ReservationDAO, context:
     @WorkerThread
     suspend fun insert(reservation: Reservation) {
         reservationDAO.insert(reservation)
+    }
+
+    /**
+     * Uses the DAO to update the item
+     *
+     * @param reservation Reservation to update
+     */
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun update(reservation: Reservation) {
+        reservationDAO.update(reservation)
     }
 
     /**

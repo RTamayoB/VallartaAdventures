@@ -1,24 +1,18 @@
 package com.exinnotech.vallartaadventures
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.Request
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
 import com.exinnotech.vallartaadventures.adapter.ReservationAdapter
 import com.exinnotech.vallartaadventures.room.VallartaApplication
 import com.exinnotech.vallartaadventures.room.entity.Reservation
 import com.exinnotech.vallartaadventures.room.viewmodel.*
-import org.json.JSONObject
-import org.w3c.dom.Text
 
 class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListener {
 
@@ -37,6 +31,7 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
     lateinit var hotelAuto: AutoCompleteTextView
     lateinit var tourAuto: AutoCompleteTextView
     lateinit var reservationProgressBar: ProgressBar
+    lateinit var boardSwitch: Switch
     var reservationList = emptyList<Reservation>()
     var adapter: ReservationAdapter? = null
 
@@ -48,6 +43,7 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
         reservationProgressBar = findViewById(R.id.reservation_progressBar)
         hotelAuto = findViewById(R.id.hotel_search_auto)
         tourAuto = findViewById(R.id.tour_auto)
+        boardSwitch = findViewById(R.id.board_switch)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -102,14 +98,23 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
         }
 
         hotelAuto.setOnItemClickListener { adapterView, view, i, l ->
-
+            Log.d("Selected", i.toString())
+            adapter?.filterWithoutQuery("TODOS",hotelAuto.text.toString(), tourAuto.text.toString(), boardSwitch.isChecked)
         }
 
+
+        tourAuto.setOnItemClickListener { adapterView, view, i, l ->
+            adapter?.filterWithoutQuery("TODOS",hotelAuto.text.toString(), tourAuto.text.toString(), boardSwitch.isChecked)
+        }
+
+        boardSwitch.setOnCheckedChangeListener { compoundButton, b ->
+            adapter?.filterWithoutQuery("TODOS",hotelAuto.text.toString(), tourAuto.text.toString(), b)
+        }
 
     }
 
     override fun onItemClick(reservation: Reservation) {
-        val checkInPopupWindow = CheckInActivity(this,findViewById(android.R.id.content), reservation)
+        val checkInPopupWindow = CheckInActivity(this, reservation, reservationViewModel)
         checkInPopupWindow.showCheckInPopup()
     }
 
@@ -126,7 +131,7 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
 
             override fun onQueryTextChange(p0: String?): Boolean {
                 Log.d("onQueryTextChange", "query: $p0")
-                adapter?.filter?.filter(p0)
+                adapter?.filter(p0!!, "TODOS",hotelAuto.text.toString(), tourAuto.text.toString(), boardSwitch.isChecked)
                 return true
             }
 

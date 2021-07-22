@@ -1,11 +1,15 @@
 package com.exinnotech.vallartaadventures.adapter
 
+import android.content.res.Resources
+import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.exinnotech.vallartaadventures.R
 import com.exinnotech.vallartaadventures.room.entity.Reservation
@@ -19,7 +23,7 @@ import com.exinnotech.vallartaadventures.room.entity.Reservation
  * @param data List of reservations
  * @param onItemListener ItemListener to add onClick functionality
  */
-class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener): RecyclerView.Adapter<ReservationAdapter.MyViewHolder>(), Filterable {
+class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener): RecyclerView.Adapter<ReservationAdapter.MyViewHolder>()/*, Filterable*/ {
 
     var data = emptyList<Reservation>()
     var dataFiltered = emptyList<Reservation>()
@@ -27,7 +31,13 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
 
     init {
         this.data = data
-        dataFiltered = this.data
+        val result = ArrayList<Reservation>()
+        for(item in data){
+            if(item.status != 14){
+                result.add(item)
+            }
+        }
+        dataFiltered = result.toList()
         mOnItemListener = onItemListener
     }
 
@@ -63,6 +73,7 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
         return dataFiltered.size
     }
 
+    /*
     /**
      * Filters the list of reservations by the specified parameters
      *
@@ -77,7 +88,7 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
                 }else{
                     val result = ArrayList<Reservation>()
                     for(item in data){
-                        //TODO(Add filtering for other filters)
+                        //TODO Add filtering for other filters
                         if(item.confNum.lowercase().contains(searchItem.lowercase())
                             || item.guestName.lowercase().contains(searchItem.lowercase())){
                             result.add(item)
@@ -96,6 +107,138 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
             }
 
         }
+    }
+    */
+
+    /**
+     * My filter for all the diferent type of filters
+     *
+     * @param queryText Text of the Searchview, can be the guest_name or confirmation_code
+     * @param hotelZone Hotel zone
+     * @param hotel Name of the hotel
+     * @param tour Name of the tour
+     * @param board Look for boarded
+     */
+    fun filter(queryText: String, hotelZone: String, hotel: String, tour: String, board: Boolean) {
+        val result = ArrayList<Reservation>()
+        for(item in data){
+            //Query Name or Code
+            if(item.confNum.lowercase().contains(queryText.lowercase()) || item.guestName.lowercase().contains(queryText.lowercase())){
+                result.add(item)
+            }
+            //Query hotel zone
+            if(hotelZone != "TODOS" || hotelZone.isNotEmpty()){
+
+            }
+            else{
+                if(!(result.contains(item))){
+                    result.add(item)
+                }
+            }
+            //Query hotels
+            if(hotel != "TODOS" || hotel.isNotEmpty()){
+                if(item.hotelName == hotel) {
+                    if (!(result.contains(item))) {
+                        result.add(item)
+                    }
+                }
+            }
+            else{
+                if(!(result.contains(item))){
+                    result.add(item)
+                }
+            }
+            //Query tours
+            if(tour != "TODOS" || tour.isNotEmpty()){
+                if(item.tourName == tour){
+                    if(!(result.contains(item))){
+                        result.add(item)
+                    }
+                }
+            }
+            else{
+                if(!(result.contains(item))){
+                    result.add(item)
+                }
+            }
+            //Query board
+            if(board){
+                if(item.status == 14){
+                    if(!(result.contains(item))){
+                        result.add(item)
+                    }
+                }
+            }
+            else{
+                if(!(result.contains(item))){
+                    result.add(item)
+                }
+                if(item.status == 14){
+                    result.remove(item)
+                }
+            }
+        }
+        dataFiltered = result.toList()
+        notifyDataSetChanged()
+    }
+
+    fun filterWithoutQuery(hotelZone: String, hotel: String, tour: String, board: Boolean) {
+        val result = ArrayList<Reservation>()
+        for(item in data){
+            //Query hotel zone
+            if(hotelZone != "TODOS" || hotelZone.isNotEmpty()){
+
+            }
+            else{
+                if(!(result.contains(item))){
+                    result.add(item)
+                }
+            }
+            //Query hotels
+            if(hotel != "TODOS" || hotel.isNotEmpty()){
+                if(item.hotelName == hotel) {
+                    if (!(result.contains(item))) {
+                        result.add(item)
+                    }
+                }
+            }
+            else{
+                if(!(result.contains(item))){
+                    result.add(item)
+                }
+            }
+            //Query tours
+            if(tour != "TODOS" || tour.isNotEmpty()){
+                if(item.tourName == tour){
+                    if(!(result.contains(item))){
+                        result.add(item)
+                    }
+                }
+            }
+            else{
+                if(!(result.contains(item))){
+                    result.add(item)
+                }
+            }
+            //Query board
+            if(board){
+                if(item.status == 14){
+                    if(!(result.contains(item))){
+                        result.add(item)
+                    }
+                }
+            }
+            else{
+                if(!(result.contains(item))){
+                    result.add(item)
+                }
+                if(item.status == 14){
+                    result.remove(item)
+                }
+            }
+        }
+        dataFiltered = result.toList()
+        notifyDataSetChanged()
     }
 
     /**
@@ -123,6 +266,12 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
             confNumText.text = item.confNum
             nameText.text = item.guestName
             tourText.text = item.tourName
+
+            if(item.status == 14){
+                itemView.setBackgroundResource(R.drawable.boarded_reservation_border)
+            }else{
+                itemView.setBackgroundResource(R.drawable.reservation_border)
+            }
         }
     }
 

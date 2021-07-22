@@ -1,10 +1,7 @@
 package com.exinnotech.vallartaadventures.room.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.exinnotech.vallartaadventures.room.entity.Reservation
 import kotlinx.coroutines.flow.Flow
 
@@ -29,6 +26,14 @@ interface ReservationDAO {
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(reservation: Reservation)
+
+    /**
+     * Updates the object
+     *
+     * @param reservation Reservation to update
+     */
+    @Update
+    suspend fun update(reservation: Reservation)
 
     /**
      * Deletes all data from the table

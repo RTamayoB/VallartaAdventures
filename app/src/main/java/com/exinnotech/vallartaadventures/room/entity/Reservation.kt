@@ -55,5 +55,5 @@ class Reservation(
     @ColumnInfo(name = "child_num") val childNum: Int,
     @ColumnInfo(name = "infant_num") val infantNum: Int,
     @ColumnInfo(name = "vehiculo_num") val vehicleNum: Int,
-    @ColumnInfo(name = "status") val status: Int,
+    @ColumnInfo(name = "status") var status: Int,
     )

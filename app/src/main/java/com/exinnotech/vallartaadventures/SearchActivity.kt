@@ -59,7 +59,7 @@ class SearchActivity : AppCompatActivity() {
                         if(it == null){
                             Toast.makeText(this, "No se encontro una reservación con este código", Toast.LENGTH_LONG).show()
                         }else{
-                            val checkInPopupWindow = CheckInActivity(this,findViewById(android.R.id.content), it)
+                            val checkInPopupWindow = CheckInActivity(this, it, reservationViewModel)
                             checkInPopupWindow.showCheckInPopup()
                         }
                     }
@@ -83,7 +83,7 @@ class SearchActivity : AppCompatActivity() {
                     if(it == null){
                         Toast.makeText(this, "No se encontro una reservación con este código", Toast.LENGTH_LONG).show()
                     }else{
-                        val checkInPopupWindow = CheckInActivity(this,findViewById(android.R.id.content), it)
+                        val checkInPopupWindow = CheckInActivity(this, it, reservationViewModel)
                         checkInPopupWindow.showCheckInPopup()
                     }
                 }

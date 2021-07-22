@@ -8,4 +8,5 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="vallarta_blue">#003264</color>
+    <color name="item_background">#90ED7B</color>
 </resources>

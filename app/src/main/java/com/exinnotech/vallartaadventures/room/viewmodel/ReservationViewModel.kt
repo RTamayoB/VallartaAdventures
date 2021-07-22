@@ -21,6 +21,15 @@ class ReservationViewModel(private val repository: ReservationRepository): ViewM
     }
 
     /**
+     * Launching a coroutine to insert the value
+     *
+     * @param reservation Reservation to update
+     */
+    fun update(reservation: Reservation) = viewModelScope.launch {
+        repository.update(reservation)
+    }
+
+    /**
      * Get the reservation by confirmation code
      *
      * @param confNum

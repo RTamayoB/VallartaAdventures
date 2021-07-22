@@ -42,7 +42,7 @@ class HotelRepository(private val hotelDAO: HotelDAO, context: Context) {
         val listExists = hotelDAO.getHotelNames()
         if(listExists.asLiveData().value.isNullOrEmpty()){
             val jsonArrayRequestHotels = JsonArrayRequest(
-                Request.Method.GET, Util("0").hotelURL, null,
+                Request.Method.GET, Util("0","NULL").hotelURL, null,
                 { response ->
                     try {
                         CoroutineScope(Dispatchers.IO).launch {

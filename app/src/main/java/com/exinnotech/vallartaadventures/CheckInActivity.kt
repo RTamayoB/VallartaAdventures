@@ -1,57 +1,35 @@
 package com.exinnotech.vallartaadventures
 
 import android.app.Activity
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothSocket
 import android.content.Context
-import android.content.Intent
-import android.os.Handler
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
-import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
+import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.exinnotech.vallartaadventures.room.entity.Reservation
-import com.github.anastaciocintra.escpos.EscPos
-import com.github.anastaciocintra.escpos.Style
-import com.github.anastaciocintra.escpos.barcode.BarCode
+import com.exinnotech.vallartaadventures.room.viewmodel.ReservationViewModel
+import com.exinnotech.vallartaadventures.scanning.ScanActivity
 import org.json.JSONObject
-import java.io.InputStream
-import java.io.OutputStream
-import java.nio.charset.StandardCharsets
+import java.io.IOException
 import java.util.*
-
-var bluetoothAdapter: BluetoothAdapter? = null
-var bluetoothSocket: BluetoothSocket? = null
-var bluetoothDevice: BluetoothDevice? = null
-
-var outputStream: OutputStream? = null
-var inputStream: InputStream? = null
-var thread: Thread? = null
-
-var readBuffer: ByteArray = byteArrayOf()
-var readBufferPosition = 0
-
-@Volatile
-var stopWorker = false
 
 /**
  * This class handles the popup to show the details of the reservation, as well to handle the check in methods
- * TODO: Divide the Scanning and Popup processes, Make location a class variable
  *
  * @property activity Activity from where the action is being performed
  * @property location Location to show the view
  * @property reservation Reservation picked to draw the data from
  */
-class CheckInActivity(val activity: Activity, val location: View, val reservation: Reservation) {
+class CheckInActivity(val activity: Activity, val reservation: Reservation, viewModel: ReservationViewModel) {
 
     val queue = Volley.newRequestQueue(activity.applicationContext)
-
+    val reservationViewModel = viewModel
 
     /**
      * Inflates the view and shows the popup, and handles the check in methods
@@ -101,7 +79,9 @@ class CheckInActivity(val activity: Activity, val location: View, val reservatio
         pickupText.text = reservation.pickup
         amountText.text = reservation.amount.toString()
 
-        popupWindow.showAtLocation(location, Gravity.CENTER, 0, 0)
+        popupWindow.showAtLocation(activity.findViewById(android.R.id.content), Gravity.CENTER, 0, 0)
+
+        Log.d("Reservation", reservation.guestName)
 
         /**
          * Does the check in
@@ -111,13 +91,30 @@ class CheckInActivity(val activity: Activity, val location: View, val reservatio
             contents.put("idReserva", reservation.reservDetailId)
             contents.put("observaciones", "Abordado")
             val changeStatusURL = "http://exinnot.ddns.net:10900/Reservations/ChangeStatusCheckIn?idReserva=${reservation.reservDetailId}&observaciones=Abordado"
-            val changeStatusRequest = JsonObjectRequest(
+            val changeStatusRequest = JsonArrayRequest(
                 Request.Method.PUT, changeStatusURL, null,
                 { response ->
-                    Log.d("Response", response.toString())
-                    Toast.makeText(activity.applicationContext, "Pax abordado", Toast.LENGTH_LONG).show()
-                    popupWindow.dismiss()
-                    printPasses(reservation)
+                    try{
+                        Log.d("Response", response.toString())
+                        val printer = ScanActivity(activity, reservation)
+                        printer.connectPrinter()
+                        reservation.status = 14
+                        reservationViewModel.update(reservation)
+                        printer.printPasses(reservation)
+                        Toast.makeText(activity.applicationContext, "Pax abordado", Toast.LENGTH_LONG).show()
+                        val adapter = activity.findViewById<RecyclerView>(R.id.reservation_list)
+                        adapter.adapter?.notifyDataSetChanged()
+                        popupWindow.dismiss()
+                    }catch (e: IOException){
+                        popupWindow.dismiss()
+                        Log.d("Error",e.toString())
+                        Toast.makeText(activity.applicationContext, "Error conectando a la impresora, revise que este encendida y conectada al dispositivo", Toast.LENGTH_LONG).show()
+                    }catch (e: Exception){
+                        popupWindow.dismiss()
+                        Toast.makeText(activity.applicationContext, "Error", Toast.LENGTH_LONG).show()
+                        Log.d("Error",e.toString())
+                    }
+
                 },
                 { error ->
                     Log.d("Error", error.toString())
@@ -138,9 +135,12 @@ class CheckInActivity(val activity: Activity, val location: View, val reservatio
                 Request.Method.PUT, changeStatusURL, null,
                 { response ->
                     Log.d("Response", response.toString())
+                    reservation.status = 1
+                    reservationViewModel.update(reservation)
                     Toast.makeText(activity.applicationContext, "Pax cancelado", Toast.LENGTH_LONG).show()
+                    val adapter = activity.findViewById<RecyclerView>(R.id.reservation_list)
+                    adapter.adapter?.notifyDataSetChanged()
                     popupWindow.dismiss()
-                    doPrinting(reservation)
                 },
                 { error ->
                     Log.d("Error", error.toString())
@@ -150,140 +150,4 @@ class CheckInActivity(val activity: Activity, val location: View, val reservatio
             queue.add(changeStatusRequest)
         }
     }
-
-    fun doPrinting(reservation: Reservation) {
-
-        try {
-            findPrinter()
-            openPrinter()
-            printPasses(reservation)
-            disconnectBT()
-        }catch (e: Exception){
-            Log.d("Error at print", e.toString())
-        }
-
-
-    }
-
-    fun findPrinter() {
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        if(bluetoothAdapter!!.isEnabled) {
-
-            val enableBT = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startActivityForResult(activity,enableBT,0,null)
-        }
-
-        val pairedDevice = bluetoothAdapter!!.bondedDevices
-
-        if (pairedDevice.size > 0) {
-            for (pairedDev in pairedDevice) {
-
-                // My Bluetoth printer name is BTP_F09F1A
-                if (pairedDev.name == "MTP-2") {
-                    bluetoothDevice = pairedDev
-                    break
-                }
-            }
-        }
-    }
-
-    fun openPrinter() {
-        //Standard uuid from string //
-        val uuidSting = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
-        bluetoothSocket = bluetoothDevice!!.createRfcommSocketToServiceRecord(uuidSting)
-        bluetoothSocket!!.connect()
-        outputStream = bluetoothSocket!!.outputStream
-        inputStream = bluetoothSocket!!.inputStream
-
-        beginListenData()
-    }
-
-    fun beginListenData() {
-            val handler = Handler()
-            val delimiter: Byte = 10
-            stopWorker = false
-            readBufferPosition = 0
-            readBuffer = ByteArray(1024)
-            thread = Thread {
-                while (!Thread.currentThread().isInterrupted && !stopWorker) {
-                    try {
-                        val byteAvailable = inputStream!!.available()
-                        if (byteAvailable > 0) {
-                            val packetByte = ByteArray(byteAvailable)
-                            inputStream!!.read(packetByte)
-                            for (i in 0 until byteAvailable) {
-                                val b = packetByte[i]
-                                if (b == delimiter) {
-                                    val encodedByte =
-                                        ByteArray(readBufferPosition)
-                                    System.arraycopy(
-                                        readBuffer, 0,
-                                        encodedByte, 0,
-                                        encodedByte.size
-                                    )
-                                    val data =
-                                        String(encodedByte, StandardCharsets.US_ASCII)
-                                    readBufferPosition = 0
-                                    handler.post {
-                                        Log.d("Connected to", data)
-                                    }
-                                } else {
-                                    readBuffer[readBufferPosition++] = b
-                                }
-                            }
-                        }
-                    } catch (ex: Exception) {
-                        stopWorker = true
-                    }
-                }
-            }
-            thread!!.start()
-    }
-
-    fun printPasses(reservation: Reservation) {
-        val escPos = EscPos(outputStream)
-        val paxNum = reservation.adultNum+reservation.childNum
-        for (i in 1 until paxNum){
-            escPos.style = Style().setColorMode(Style.ColorMode.WhiteOnBlack).setFontSize(Style.FontSize._3, Style.FontSize._3)
-            escPos.write("Y11")
-            escPos.feed(1)
-            escPos.style = Style().setBold(true).setFontSize(Style.FontSize._1, Style.FontSize._1)
-            escPos.write("Vallarta Adventures Boarding Pass")
-            escPos.style = Style().setBold(false).setFontSize(Style.FontSize._1, Style.FontSize._1)
-            escPos.feed(1)
-            escPos.write("Name: ${reservation.guestName}")
-            escPos.feed(1)
-            escPos.write("Hotel: ${reservation.hotelName}")
-            escPos.feed(1)
-            escPos.write("Tour: ${reservation.tourName}")
-            escPos.feed(1)
-            escPos.write("Extra Activity:")
-            escPos.feed(1)
-            escPos.write("Date(d/m/y): ${reservation.registrationDate.split("T")[0]}")
-            escPos.feed(1)
-            escPos.write("Time of Tour: ${reservation.registrationDate.split("T")[1]}")
-            escPos.feed(1)
-            escPos.write("Confirmation No.: ${reservation.confNum}")
-            escPos.feed(1)
-            escPos.write("Passenger No. $i/$paxNum")
-            escPos.feed(2)
-            escPos.write("Please be ready 10 minutes before departure in:")
-            escPos.feed(2)
-            escPos.write("Terminal Maritima")
-            escPos.feed(1)
-            val barCode = BarCode()
-            escPos.write(barCode, reservation.confNum)
-            escPos.feed(2)
-            escPos.cut(EscPos.CutMode.FULL)
-            escPos.feed(2)
-        }
-    }
-
-    fun disconnectBT() {
-        stopWorker = true
-        outputStream!!.close()
-        inputStream!!.close()
-        bluetoothSocket!!.close()
-    }
-
 }
