@@ -241,6 +241,51 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
         notifyDataSetChanged()
     }
 
+    fun myFilter(searchItem: String, nameChecked: Boolean, confNumChecked: Boolean, hotelZoneChecked: Boolean, hotelChecked: Boolean, tourChecked: Boolean){
+        val result = ArrayList<Reservation>()
+        if(!nameChecked && !confNumChecked && !hotelZoneChecked && !hotelChecked && !tourChecked){
+            for(item in data){
+                //TODO Add filtering for other filters
+                if(item.confNum.lowercase().contains(searchItem.lowercase()) || item.guestName.lowercase().contains(searchItem.lowercase())){
+                    result.add(item)
+                }
+            }
+        }
+        else{
+            for(item in data){
+                if(nameChecked){
+                    if(item.guestName.lowercase().contains(searchItem.lowercase())){
+                        result.add(item)
+                    }
+                }
+                if(confNumChecked){
+                    if(item.confNum.lowercase().contains(searchItem.lowercase())){
+                        result.add(item)
+                    }
+                }
+                if(hotelZoneChecked){
+                    /*
+                    if(item.guestName.lowercase().contains(searchItem.lowercase())){
+                        result.add(item)
+                    }
+                     */
+                }
+                if(hotelChecked){
+                    if(item.hotelName.lowercase().contains(searchItem.lowercase())){
+                        result.add(item)
+                    }
+                }
+                if(tourChecked){
+                    if(item.tourName.lowercase().contains(searchItem.lowercase())){
+                        result.add(item)
+                    }
+                }
+            }
+        }
+        dataFiltered = result.toList()
+        notifyDataSetChanged()
+    }
+
     /**
      * View Holder manages the instantiation of the layout views and binds the data
      *

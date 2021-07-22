@@ -6,13 +6,14 @@ import android.view.*
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SwitchCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.exinnotech.vallartaadventures.adapter.ReservationAdapter
 import com.exinnotech.vallartaadventures.room.VallartaApplication
 import com.exinnotech.vallartaadventures.room.entity.Reservation
 import com.exinnotech.vallartaadventures.room.viewmodel.*
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 
 class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListener {
 
@@ -32,6 +33,12 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
     lateinit var tourAuto: AutoCompleteTextView
     lateinit var reservationProgressBar: ProgressBar
     lateinit var boardSwitch: Switch
+    lateinit var filterGroup: ChipGroup
+    lateinit var nameChip: Chip
+    lateinit var confirmationChip: Chip
+    lateinit var hotelZoneChip: Chip
+    lateinit var hotelChip: Chip
+    lateinit var tourChip: Chip
     var reservationList = emptyList<Reservation>()
     var adapter: ReservationAdapter? = null
 
@@ -44,6 +51,12 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
         hotelAuto = findViewById(R.id.hotel_search_auto)
         tourAuto = findViewById(R.id.tour_auto)
         boardSwitch = findViewById(R.id.board_switch)
+        filterGroup = findViewById(R.id.filter_group)
+        nameChip = findViewById(R.id.name_chip)
+        confirmationChip = findViewById(R.id.conf_num_chip)
+        hotelZoneChip = findViewById(R.id.hotel_zone_chip)
+        hotelChip = findViewById(R.id.hotel_chip)
+        tourChip = findViewById(R.id.tour_chip)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -124,6 +137,25 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
         val item = menu?.findItem(R.id.search)
         val searchView = item?.actionView as SearchView
 
+        item.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
+                filterGroup.visibility = View.VISIBLE
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(menuItem: MenuItem?): Boolean {
+                adapter?.myFilter("",
+                    nameChecked = false,
+                    confNumChecked = false,
+                    hotelZoneChecked = false,
+                    hotelChecked = false,
+                    tourChecked = false
+                )
+                filterGroup.visibility = View.GONE
+                return true
+            }
+        })
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(p0: String?): Boolean {
                 return true
@@ -131,7 +163,8 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
 
             override fun onQueryTextChange(p0: String?): Boolean {
                 Log.d("onQueryTextChange", "query: $p0")
-                adapter?.filter(p0!!, "TODOS",hotelAuto.text.toString(), tourAuto.text.toString(), boardSwitch.isChecked)
+                //adapter?.filter(p0!!, "TODOS",hotelAuto.text.toString(), tourAuto.text.toString(), boardSwitch.isChecked)
+                adapter?.myFilter(p0!!,nameChip.isChecked, confirmationChip.isChecked, hotelZoneChip.isChecked, hotelChip.isChecked, tourChip.isChecked)
                 return true
             }
 
