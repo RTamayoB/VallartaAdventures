@@ -15,7 +15,7 @@ interface TourDAO {
      *
      * @return List of Tours
      */
-    @Query("SELECT idTour, nombreTour, Descripcion FROM tour_table ORDER BY nombreTour ASC")
+    @Query("SELECT * FROM tour_table ORDER BY nombreTour ASC")
     fun getTourNames(): Flow<List<Tour>>
 
     /**

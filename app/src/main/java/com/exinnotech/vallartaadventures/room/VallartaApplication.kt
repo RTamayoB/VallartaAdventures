@@ -1,6 +1,7 @@
 package com.exinnotech.vallartaadventures.room
 
 import android.app.Application
+import com.exinnotech.vallartaadventures.room.repository.FatherTourRepository
 import com.exinnotech.vallartaadventures.room.repository.HotelRepository
 import com.exinnotech.vallartaadventures.room.repository.ReservationRepository
 import com.exinnotech.vallartaadventures.room.repository.TourRepository
@@ -15,4 +16,5 @@ class VallartaApplication: Application() {
     val reservationRepository by lazy { ReservationRepository(database.reservationDao(), this) }
     val hotelRepository by lazy { HotelRepository(database.hotelDao(), this) }
     val tourRepository by lazy { TourRepository(database.tourDao(), this) }
+    val fatherTourRepository by lazy { FatherTourRepository(database.fatherTourDao(), this) }
 }

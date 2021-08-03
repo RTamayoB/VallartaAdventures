@@ -7,7 +7,6 @@ import androidx.lifecycle.asLiveData
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
-import com.exinnotech.vallartaadventures.Util
 import com.exinnotech.vallartaadventures.room.dao.HotelDAO
 import com.exinnotech.vallartaadventures.room.entity.Hotel
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +23,11 @@ import kotlinx.coroutines.launch
  */
 class HotelRepository(private val hotelDAO: HotelDAO, context: Context) {
     private val queue = Volley.newRequestQueue(context)
-
+    private val shared = context.getSharedPreferences("searchPreferences",0)
+    val login = context.getSharedPreferences("login",0)
+    val date = shared.getString("date","0000-00-00")
+    val uid = login.getString("uid","NULL")
+    private val hotelURL = "http://exinnot.ddns.net:10900/Reservations/GetHotelList?fecha_reservacion_inicio=${date}T00:00:00&fecha_reservacion_fin=${date}T23:59:59&UserId=$uid"
     /**
      * Gets the data either locally or from the API
      *
@@ -42,7 +45,7 @@ class HotelRepository(private val hotelDAO: HotelDAO, context: Context) {
         val listExists = hotelDAO.getHotelNames()
         if(listExists.asLiveData().value.isNullOrEmpty()){
             val jsonArrayRequestHotels = JsonArrayRequest(
-                Request.Method.GET, Util("0","NULL").hotelURL, null,
+                Request.Method.GET, hotelURL.replace("\"",""), null,
                 { response ->
                     try {
                         CoroutineScope(Dispatchers.IO).launch {

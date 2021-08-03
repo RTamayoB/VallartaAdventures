@@ -1,21 +1,19 @@
 package com.exinnotech.vallartaadventures.adapter
 
-import android.content.res.Resources
-import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Filter
-import android.widget.Filterable
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.exinnotech.vallartaadventures.R
 import com.exinnotech.vallartaadventures.room.entity.Reservation
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Adapter to use in the Recycler view for the reservation list
+ * TODO: Decided on a filter alternative
  *
  * @constructor
  * Initializes the data
@@ -119,7 +117,7 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
      * @param tour Name of the tour
      * @param board Look for boarded
      */
-    fun filter(queryText: String, hotelZone: String, hotel: String, tour: String, board: Boolean) {
+    fun filter(queryText: String, hotelZone: String, hotel: String, tour: String, hour: String, board: Boolean) {
         val result = ArrayList<Reservation>()
         for(item in data){
             //Query Name or Code
@@ -150,7 +148,7 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
             }
             //Query tours
             if(tour != "TODOS" || tour.isNotEmpty()){
-                if(item.tourName == tour){
+                if(item.tourName.lowercase().contains(tour.lowercase())){
                     if(!(result.contains(item))){
                         result.add(item)
                     }
@@ -177,12 +175,18 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
                     result.remove(item)
                 }
             }
+            //Hour
+            if(!checkTime(hour, item.reservationTime)){
+                if(result.contains(item)){
+                    result.remove(item)
+                }
+            }
         }
         dataFiltered = result.toList()
         notifyDataSetChanged()
     }
 
-    fun filterWithoutQuery(hotelZone: String, hotel: String, tour: String, board: Boolean) {
+    fun filterWithoutQuery(hotelZone: String, hotel: String, tour: String, hour: String, board: Boolean) {
         val result = ArrayList<Reservation>()
         for(item in data){
             //Query hotel zone
@@ -209,7 +213,7 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
             }
             //Query tours
             if(tour != "TODOS" || tour.isNotEmpty()){
-                if(item.tourName == tour){
+                if(item.tourName.lowercase().contains(tour.lowercase())){
                     if(!(result.contains(item))){
                         result.add(item)
                     }
@@ -236,12 +240,18 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
                     result.remove(item)
                 }
             }
+            //Hour
+            if(!checkTime(hour, item.reservationTime)){
+                if(result.contains(item)){
+                    result.remove(item)
+                }
+            }
         }
         dataFiltered = result.toList()
         notifyDataSetChanged()
     }
 
-    fun myFilter(searchItem: String, nameChecked: Boolean, confNumChecked: Boolean, hotelZoneChecked: Boolean, hotelChecked: Boolean, tourChecked: Boolean){
+    fun myFilter(searchItem: String, nameChecked: Boolean, confNumChecked: Boolean, hotelZoneChecked: Boolean, hotelChecked: Boolean, hour: String, tourChecked: Boolean){
         val result = ArrayList<Reservation>()
         if(!nameChecked && !confNumChecked && !hotelZoneChecked && !hotelChecked && !tourChecked){
             for(item in data){
@@ -282,8 +292,54 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
                 }
             }
         }
+        for(item in data){
+            //Hour
+            if(!checkTime(hour, item.reservationTime)){
+                if(result.contains(item)){
+                    result.remove(item)
+                }
+            }
+        }
         dataFiltered = result.toList()
         notifyDataSetChanged()
+    }
+
+
+    fun checkTime(range: String,time: String): Boolean {
+        Log.d("CheckTime","$range $time")
+        val fromTime: Calendar
+        val toTime: Calendar
+        val currentTime: Calendar
+        try {
+            val times = range.split("-").toTypedArray()
+            val from = times[0].split(":").toTypedArray()
+            val until = times[1].split(":").toTypedArray()
+            val myTime = time.split(":").toTypedArray()
+
+            fromTime = Calendar.getInstance()
+            fromTime.set(Calendar.HOUR, Integer.valueOf(from[0]))
+            fromTime.set(Calendar.MINUTE, Integer.valueOf(from[1]))
+            fromTime.set(Calendar.SECOND, Integer.valueOf(from[2]))
+
+            toTime = Calendar.getInstance()
+            toTime.set(Calendar.HOUR, Integer.valueOf(until[0]))
+            toTime.set(Calendar.MINUTE, Integer.valueOf(until[1]))
+            toTime.set(Calendar.SECOND, Integer.valueOf(until[2]))
+
+            currentTime = Calendar.getInstance()
+            currentTime.set(Calendar.HOUR, Integer.valueOf(myTime[0]))
+            currentTime.set(Calendar.MINUTE, Integer.valueOf(myTime[1]))
+            currentTime.set(Calendar.SECOND, Integer.valueOf(myTime[2]))
+            if ((currentTime.after(fromTime) && currentTime.before(toTime)) || currentTime == fromTime || currentTime == toTime) {
+                Log.d("CheckTime","In Time")
+                return true
+            }
+        } catch (e: Exception) {
+            Log.d("CheckTime",e.toString())
+            return false
+        }
+        Log.d("CheckTime","Not in Time")
+        return false
     }
 
     /**
@@ -297,6 +353,7 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
         val nameText: TextView = itemView.findViewById(R.id.name_text)
         val confNumText: TextView = itemView.findViewById(R.id.conf_num_text)
         val tourText: TextView = itemView.findViewById(R.id.tour_txt)
+        val paxText: TextView = itemView.findViewById(R.id.pax_text)
         private var mOnItemListener: OnItemListener = onItemListener
 
         init {
@@ -311,6 +368,8 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
             confNumText.text = item.confNum
             nameText.text = item.guestName
             tourText.text = item.tourName
+            val qty = item.adultNum+item.childNum+item.infantNum
+            paxText.text = qty.toString()
 
             if(item.status == 14){
                 itemView.setBackgroundResource(R.drawable.boarded_reservation_border)

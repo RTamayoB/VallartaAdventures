@@ -44,6 +44,7 @@ class Reservation(
     @ColumnInfo(name = "language") val language: String,
     @ColumnInfo(name = "registration_date") val registrationDate: String,
     @ColumnInfo(name = "reservation_date") val reservationDate: String,
+    @ColumnInfo(name = "reservation_time") val reservationTime: String,
     @ColumnInfo(name = "checkin_date") val checkInDate: String,
     @ColumnInfo(name = "email_main_pax") val email: String,
     @ColumnInfo(name = "phone_main_pax") val phone: String,
@@ -55,5 +56,6 @@ class Reservation(
     @ColumnInfo(name = "child_num") val childNum: Int,
     @ColumnInfo(name = "infant_num") val infantNum: Int,
     @ColumnInfo(name = "vehiculo_num") val vehicleNum: Int,
+    @ColumnInfo(name = "claveVehiculo") val vehicleCode: String,
     @ColumnInfo(name = "status") var status: Int,
     )

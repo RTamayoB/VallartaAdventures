@@ -8,56 +8,57 @@ import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
-import com.exinnotech.vallartaadventures.room.dao.TourDAO
-import com.exinnotech.vallartaadventures.room.entity.Tour
+import com.exinnotech.vallartaadventures.room.dao.FatherTourDAO
+import com.exinnotech.vallartaadventures.room.entity.FatherTour
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 /**
- * Repository for Tour. This is used to manage the way to fetch information, either it be cached
+ * Repository for FatherTour. This is used to manage the way to fetch information, either it be cached
  * from the phone's sql database or getting it from the API
  *
- * @property TourDAO an instance of the DAO for tours
+ * @property FatherTourDAO an instance of the DAO for father tours
  * @param context The context of the activity
  */
-class TourRepository(private val tourDAO: TourDAO, context: Context) {
+class FatherTourRepository(private val fatherTourDAO: FatherTourDAO, context: Context) {
     private val queue = Volley.newRequestQueue(context)
-    val tourURL = "http://exinnot.ddns.net:10900/Tour/GetAll"
+    private val shared = context.getSharedPreferences("searchPreferences",0)
+    val login = context.getSharedPreferences("login",0)
+    val date = shared.getString("date","0000-00-00")
+    val uid = login.getString("uid","NULL")
+    val fatherTourURL = "http://exinnot.ddns.net:10900/Reservations/GetTourList?fecha_reservacion_inicio=${date}T00:00:00&fecha_reservacion_fin=${date}T23:59:59&UserId=$uid"
 
     /**
      * Gets the data either locally or from the API
      *
-     * @return List of tour objects
+     * @return List of father tour objects
      */
-    fun getTourNames(): Flow<List<Tour>> {
-        Log.d("Saving","Tours")
-        checkTours()
+    fun getFatherTourNames(): Flow<List<FatherTour>> {
+        checkFatherTours()
 
-        return tourDAO.getTourNames()
+        return fatherTourDAO.getFatherTourNames()
     }
 
     /**
-     * Checks if list of tours exists and returns it, if not it fetches the API
+     * Checks if list of father tours exists and returns it, if not it fetches the API
      */
-    private fun checkTours(){
-        val listExists = tourDAO.getTourNames()
+    private fun checkFatherTours(){
+        val listExists = fatherTourDAO.getFatherTourNames()
         if(listExists.asLiveData().value.isNullOrEmpty()){
             val jsonArrayRequestTours = JsonArrayRequest(
-                Request.Method.GET, tourURL, null,
+                Request.Method.GET, fatherTourURL.replace("\"",""), null,
                 { response ->
                     try {
                         CoroutineScope(Dispatchers.IO).launch {
                             for (i in 0 until response.length()) {
                                 val jsonObject = response.getJSONObject(i)
-                                val tour = Tour(
-                                    jsonObject.getInt("idTour"),
+                                val tour = FatherTour(
                                     jsonObject.getInt("idTourPadre"),
-                                    jsonObject.getString("nombreTour"),
-                                    jsonObject.getString("Descripcion"),
+                                    jsonObject.getString("nombreTourPadre"),
                                 )
-                                tourDAO.insert(tour)
+                                fatherTourDAO.insert(tour)
                             }
                         }
                     }catch (e: Exception){
@@ -78,13 +79,14 @@ class TourRepository(private val tourDAO: TourDAO, context: Context) {
     }
 
     /**
-     * Inserts a tour into the table
+     * Inserts a father tour into the table
      *
-     * @param tour Tour to insert
+     * @param fatherTour FatherTour to insert
      */
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun insert(tour: Tour) {
-        tourDAO.insert(tour)
+    suspend fun insert(fatherTour: FatherTour) {
+        fatherTourDAO.insert(fatherTour)
     }
+
 }

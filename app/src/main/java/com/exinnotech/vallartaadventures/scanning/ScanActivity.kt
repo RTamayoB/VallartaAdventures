@@ -6,9 +6,9 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.Intent
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.exinnotech.vallartaadventures.*
 import com.exinnotech.vallartaadventures.room.entity.Reservation
 import com.github.anastaciocintra.escpos.EscPos
 import com.github.anastaciocintra.escpos.Style
@@ -74,7 +74,7 @@ class ScanActivity(val activity: Activity, val reservation: Reservation) {
     }
 
     private fun beginListenData() {
-        val handler = Handler()
+        val handler = Handler(Looper.getMainLooper())
         val delimiter: Byte = 10
         stopWorker = false
         readBufferPosition = 0
@@ -120,7 +120,7 @@ class ScanActivity(val activity: Activity, val reservation: Reservation) {
         for (i in 0 until paxNum){
             val escPos = EscPos(outputStream)
             escPos.style = Style().setColorMode(Style.ColorMode.WhiteOnBlack).setFontSize(Style.FontSize._3, Style.FontSize._3)
-            escPos.write("Y11")
+            escPos.write(reservation.vehicleCode)
             escPos.feed(1)
             escPos.style = Style().setBold(true).setFontSize(Style.FontSize._1, Style.FontSize._1)
             escPos.write("Vallarta Adventures Boarding Pass")
@@ -136,7 +136,7 @@ class ScanActivity(val activity: Activity, val reservation: Reservation) {
             escPos.feed(1)
             escPos.write("Date(d/m/y): ${reservation.reservationDate.split("T")[0]}")
             escPos.feed(1)
-            escPos.write("Time of Tour: ${reservation.reservationDate.split("T")[1]}")
+            escPos.write("Time of Tour: ${reservation.reservationTime}")
             escPos.feed(1)
             escPos.write("Confirmation No.: ${reservation.confNum}")
             escPos.feed(1)

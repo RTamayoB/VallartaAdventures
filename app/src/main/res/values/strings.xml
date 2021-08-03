@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">VallartaAdventures</string>
-    <string name="title_activity_login">Vallarta Adventures</string>
+    <string name="app_name">Cancún Adventures</string>
+    <string name="title_activity_login">Cancún Adventures</string>
     <string name="prompt_email">Usuario</string>
     <string name="prompt_password">Contraseña</string>
     <string name="action_sign_in">Ingresar</string>
@@ -13,14 +13,16 @@
     <string name="scan_code">Escanear Código</string>
     <string name="search_coupon">Buscar Cupón</string>
     <string name="coupon_hint">Cupon/ Num. Confirmación</string>
-    <string name="name_lbl">Nombre:</string>
-    <string name="confirmation_number_lbl">Confirma:</string>
+    <string name="name_lbl">Huesped:</string>
+    <string name="confirmation_number_lbl">Reservación:</string>
     <string name="tour_lbl">Tour:</string>
+    <string name="pax_lbl">Pax:</string>
     <string name="name_search_hint">Huesped</string>
-    <string name="conf_search_hint">Confirma</string>
+    <string name="conf_search_hint">Reservación</string>
     <string name="tour_search_hint">Tour</string>
     <string name="hotel_search_hint">Hotel</string>
     <string name="hotel_area_search_hint">Zona Hotelera</string>
+    <string name="board_switch">Abordados</string>
     <string name="reserv_information">Información de la Reservación</string>
 
     <string name="tour_label">Tour:</string>
@@ -40,6 +42,7 @@
     <string name="amount_label">Monto:</string>
 
     <string name="do_checkin_button">Abordar</string>
-    <string name="undo_checkin_button">Cancelar <Abordar></Abordar></string>
+    <string name="undo_checkin_button">No Abordado</string>
+    <string name="reload_list">Regargar lista de reservaciones</string>
 
 </resources>

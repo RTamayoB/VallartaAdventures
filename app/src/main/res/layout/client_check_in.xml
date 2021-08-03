@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:backgroundTint="@color/vallarta_blue"
     android:background="@drawable/reservation_border">
 
     <TextView
@@ -15,7 +16,7 @@
         android:layout_marginEnd="8dp"
         android:fontFamily="@font/fradm"
         android:text="@string/reserv_information"
-        android:textColor=" #434041 "
+        android:textColor="@color/white"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -51,39 +52,6 @@
                     android:id="@+id/tour_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    style="@style/popup_labels"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/confirmation_num_label" />
-
-                <TextView
-                    android:id="@+id/confirmation_number_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    style="@style/popup_labels"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/coupon_label" />
-
-                <TextView
-                    android:id="@+id/coupon_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
             </TableRow>
 
             <TableRow
@@ -133,7 +101,8 @@
                 <TextView
                     android:id="@+id/phone_text"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/vallarta_blue"/>
 
             </TableRow>
 
@@ -167,22 +136,6 @@
                     android:id="@+id/kids_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    style="@style/popup_labels"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/agency_label" />
-
-                <TextView
-                    android:id="@+id/agency_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
             </TableRow>
 
             <TableRow

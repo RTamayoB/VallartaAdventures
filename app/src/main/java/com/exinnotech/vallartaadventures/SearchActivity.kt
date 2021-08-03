@@ -16,6 +16,9 @@ import com.exinnotech.vallartaadventures.scanning.CaptureActivityPortrait
 import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.integration.android.IntentResult
 
+/**
+ * Activity that handles the screen to scan the QR code or write the confirmation code
+ */
 class SearchActivity : AppCompatActivity() {
 
     private val reservationViewModel: ReservationViewModel by viewModels {
@@ -34,7 +37,7 @@ class SearchActivity : AppCompatActivity() {
         goToList = findViewById(R.id.go_list_txt)
         couponEdit = findViewById(R.id.coupon_edt)
         searchQRButton = findViewById(R.id.search_qr_button)
-        searchCouponButton = findViewById<Button>(R.id.search_coupon_button)
+        searchCouponButton = findViewById(R.id.search_coupon_button)
 
         goToList.setOnClickListener {
             goToList.setTextColor(resources.getColor(R.color.vallarta_blue))

@@ -29,9 +29,6 @@ import com.exinnotech.vallartaadventures.scanning.ScanActivity
 class LoginActivity : AppCompatActivity() {
 
     //TODO: Remove test print data
-    private val reservationViewModel: ReservationViewModel by viewModels {
-        ReservationViewModelFactory((application as VallartaApplication).reservationRepository)
-    }
 
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var binding: ActivityLoginBinding
@@ -159,6 +156,7 @@ class LoginActivity : AppCompatActivity() {
                 "Español",
                 "2021-07-15T12:00:00",
                 "2021-07-15T12:00:00",
+                "10:00:00",
                 "2021-07-18T13:00:00",
                 "micorreo@gmail.com",
                 "3313560433",
@@ -170,6 +168,7 @@ class LoginActivity : AppCompatActivity() {
                 1,
                 1,
                 1,
+                "Y11",
                 17,
             )
             val printer = ScanActivity(this, reservation)
