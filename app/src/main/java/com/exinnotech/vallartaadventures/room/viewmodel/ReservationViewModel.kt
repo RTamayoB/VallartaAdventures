@@ -13,6 +13,9 @@ class ReservationViewModel(private val repository: ReservationRepository): ViewM
     // - Repository is completely separated from the UI through the ViewModel.
     val getReservations: LiveData<List<Reservation>> = repository.getReservations().asLiveData()
 
+    fun getReservs(): LiveData<List<Reservation>> {
+        return repository.getReservations().asLiveData()
+    }
     /**
      * Launching a new coroutine to insert the data in a non-blocking way
      */

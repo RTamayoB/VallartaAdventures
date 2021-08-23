@@ -16,6 +16,5 @@ import androidx.room.PrimaryKey
 class Tour(
     @PrimaryKey @ColumnInfo(name = "idTour") val tourId: Int,
     @ColumnInfo(name = "idTourPadre") val fatherTourId: Int,
-    @ColumnInfo(name = "nombreTour") val name: String,
-    @ColumnInfo(name = "Descripcion") val description: String
+    @ColumnInfo(name = "name") val name: String,
 )

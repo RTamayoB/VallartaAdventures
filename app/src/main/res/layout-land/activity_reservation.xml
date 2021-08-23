@@ -67,7 +67,7 @@
         app:layout_constraintEnd_toStartOf="@+id/hotel_search_text"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/filter_group">
 
         <AutoCompleteTextView
             android:id="@+id/hotel_zone_auto"

@@ -24,7 +24,11 @@ import kotlinx.coroutines.launch
  */
 class TourRepository(private val tourDAO: TourDAO, context: Context) {
     private val queue = Volley.newRequestQueue(context)
-    val tourURL = "http://exinnot.ddns.net:10900/Tour/GetAll"
+    private val shared = context.getSharedPreferences("searchPreferences",0)
+    val login = context.getSharedPreferences("login",0)
+    val date = shared.getString("date","0000-00-00")
+    val uid = login.getString("uid","NULL")
+    val tourURL = "http://exinnot.ddns.net:10900/Reservations/GetTourList?fecha_reservacion_inicio=${date}T00:00:00&fecha_reservacion_fin=${date}T23:59:59&UserId=${uid}"
 
     /**
      * Gets the data either locally or from the API
@@ -45,7 +49,7 @@ class TourRepository(private val tourDAO: TourDAO, context: Context) {
         val listExists = tourDAO.getTourNames()
         if(listExists.asLiveData().value.isNullOrEmpty()){
             val jsonArrayRequestTours = JsonArrayRequest(
-                Request.Method.GET, tourURL, null,
+                Request.Method.GET, tourURL.replace("\"",""), null,
                 { response ->
                     try {
                         CoroutineScope(Dispatchers.IO).launch {
@@ -53,9 +57,8 @@ class TourRepository(private val tourDAO: TourDAO, context: Context) {
                                 val jsonObject = response.getJSONObject(i)
                                 val tour = Tour(
                                     jsonObject.getInt("idTour"),
-                                    jsonObject.getInt("idTourPadre"),
-                                    jsonObject.getString("nombreTour"),
-                                    jsonObject.getString("Descripcion"),
+                                    0,
+                                    jsonObject.getString("name"),
                                 )
                                 tourDAO.insert(tour)
                             }

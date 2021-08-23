@@ -173,7 +173,7 @@ class LoginActivity : AppCompatActivity() {
             )
             val printer = ScanActivity(this, reservation)
             printer.connectPrinter()
-            printer.printPasses(reservation)
+            printer.printPasses(reservation, false,HashMap())
         }
     }
 

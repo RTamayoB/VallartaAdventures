@@ -108,57 +108,21 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
     }
     */
 
-    /**
-     * My filter for all the diferent type of filters
-     *
-     * @param queryText Text of the Searchview, can be the guest_name or confirmation_code
-     * @param hotelZone Hotel zone
-     * @param hotel Name of the hotel
-     * @param tour Name of the tour
-     * @param board Look for boarded
-     */
-    fun filter(queryText: String, hotelZone: String, hotel: String, tour: String, hour: String, board: Boolean) {
+    fun filter(hotelZone: String, hotel: String, tour: String, hour: String, board: Boolean) {
         val result = ArrayList<Reservation>()
         for(item in data){
-            //Query Name or Code
-            if(item.confNum.lowercase().contains(queryText.lowercase()) || item.guestName.lowercase().contains(queryText.lowercase())){
-                result.add(item)
+            if(item.hotelName == hotel && item.tourName == tour){
+                if(!result.contains(item)){
+                    result.add(item)
+                }
             }
-            //Query hotel zone
-            if(hotelZone != "TODOS" || hotelZone.isNotEmpty()){
 
-            }
-            else{
-                if(!(result.contains(item))){
-                    result.add(item)
+            if(hour != item.reservationTime){
+                if(result.contains(item)){
+                    result.remove(item)
                 }
             }
-            //Query hotels
-            if(hotel != "TODOS" || hotel.isNotEmpty()){
-                if(item.hotelName == hotel) {
-                    if (!(result.contains(item))) {
-                        result.add(item)
-                    }
-                }
-            }
-            else{
-                if(!(result.contains(item))){
-                    result.add(item)
-                }
-            }
-            //Query tours
-            if(tour != "TODOS" || tour.isNotEmpty()){
-                if(item.tourName.lowercase().contains(tour.lowercase())){
-                    if(!(result.contains(item))){
-                        result.add(item)
-                    }
-                }
-            }
-            else{
-                if(!(result.contains(item))){
-                    result.add(item)
-                }
-            }
+
             //Query board
             if(board){
                 if(item.status == 14){
@@ -168,85 +132,14 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
                 }
             }
             else{
-                if(!(result.contains(item))){
-                    result.add(item)
-                }
                 if(item.status == 14){
-                    result.remove(item)
-                }
-            }
-            //Hour
-            if(!checkTime(hour, item.reservationTime)){
-                if(result.contains(item)){
-                    result.remove(item)
+                    if((result.contains(item))){
+                        result.remove(item)
+                    }
                 }
             }
         }
-        dataFiltered = result.toList()
-        notifyDataSetChanged()
-    }
 
-    fun filterWithoutQuery(hotelZone: String, hotel: String, tour: String, hour: String, board: Boolean) {
-        val result = ArrayList<Reservation>()
-        for(item in data){
-            //Query hotel zone
-            if(hotelZone != "TODOS" || hotelZone.isNotEmpty()){
-
-            }
-            else{
-                if(!(result.contains(item))){
-                    result.add(item)
-                }
-            }
-            //Query hotels
-            if(hotel != "TODOS" || hotel.isNotEmpty()){
-                if(item.hotelName == hotel) {
-                    if (!(result.contains(item))) {
-                        result.add(item)
-                    }
-                }
-            }
-            else{
-                if(!(result.contains(item))){
-                    result.add(item)
-                }
-            }
-            //Query tours
-            if(tour != "TODOS" || tour.isNotEmpty()){
-                if(item.tourName.lowercase().contains(tour.lowercase())){
-                    if(!(result.contains(item))){
-                        result.add(item)
-                    }
-                }
-            }
-            else{
-                if(!(result.contains(item))){
-                    result.add(item)
-                }
-            }
-            //Query board
-            if(board){
-                if(item.status == 14){
-                    if(!(result.contains(item))){
-                        result.add(item)
-                    }
-                }
-            }
-            else{
-                if(!(result.contains(item))){
-                    result.add(item)
-                }
-                if(item.status == 14){
-                    result.remove(item)
-                }
-            }
-            //Hour
-            if(!checkTime(hour, item.reservationTime)){
-                if(result.contains(item)){
-                    result.remove(item)
-                }
-            }
-        }
         dataFiltered = result.toList()
         notifyDataSetChanged()
     }
@@ -294,7 +187,7 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
         }
         for(item in data){
             //Hour
-            if(!checkTime(hour, item.reservationTime)){
+            if(hour != item.reservationTime){
                 if(result.contains(item)){
                     result.remove(item)
                 }
@@ -302,44 +195,6 @@ class ReservationAdapter(data: List<Reservation>, onItemListener: OnItemListener
         }
         dataFiltered = result.toList()
         notifyDataSetChanged()
-    }
-
-
-    fun checkTime(range: String,time: String): Boolean {
-        Log.d("CheckTime","$range $time")
-        val fromTime: Calendar
-        val toTime: Calendar
-        val currentTime: Calendar
-        try {
-            val times = range.split("-").toTypedArray()
-            val from = times[0].split(":").toTypedArray()
-            val until = times[1].split(":").toTypedArray()
-            val myTime = time.split(":").toTypedArray()
-
-            fromTime = Calendar.getInstance()
-            fromTime.set(Calendar.HOUR, Integer.valueOf(from[0]))
-            fromTime.set(Calendar.MINUTE, Integer.valueOf(from[1]))
-            fromTime.set(Calendar.SECOND, Integer.valueOf(from[2]))
-
-            toTime = Calendar.getInstance()
-            toTime.set(Calendar.HOUR, Integer.valueOf(until[0]))
-            toTime.set(Calendar.MINUTE, Integer.valueOf(until[1]))
-            toTime.set(Calendar.SECOND, Integer.valueOf(until[2]))
-
-            currentTime = Calendar.getInstance()
-            currentTime.set(Calendar.HOUR, Integer.valueOf(myTime[0]))
-            currentTime.set(Calendar.MINUTE, Integer.valueOf(myTime[1]))
-            currentTime.set(Calendar.SECOND, Integer.valueOf(myTime[2]))
-            if ((currentTime.after(fromTime) && currentTime.before(toTime)) || currentTime == fromTime || currentTime == toTime) {
-                Log.d("CheckTime","In Time")
-                return true
-            }
-        } catch (e: Exception) {
-            Log.d("CheckTime",e.toString())
-            return false
-        }
-        Log.d("CheckTime","Not in Time")
-        return false
     }
 
     /**

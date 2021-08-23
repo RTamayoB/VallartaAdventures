@@ -75,13 +75,16 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
 
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, fillHourSpinner())
-        binding.hourFilter?.adapter = spinnerAdapter
+        //binding.hourFilter?.adapter = fillHourSpinner()
 
         // Add an observer on the LiveData returned by getReservations
         // The onChanged() method fires when the observed data changes and the activity is
         // in the foreground.
-        reservationViewModel.getReservations.observe(this) { reservations ->
+
+        getReservations()
+
+        /*
+        reservationViewModel.getReservs().observe(this) { reservations ->
             // Update the cached copy of the reservations in the adapter.
             reservations.let {
                 Log.d("Loading", "Reservations")
@@ -93,7 +96,9 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
                 recyclerView.adapter = adapter
                 adapter!!.notifyDataSetChanged()
             }
-        }
+        }*/
+
+        val reserva = reservationViewModel.getReservs().value
 
         hotelViewModel.getHotelNames.observe(this) { hotels ->
             hotels.let {
@@ -108,6 +113,19 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
             }
         }
 
+        tourViewModel.getTourNames.observe(this) { tours ->
+            tours.let {
+                val tourList = ArrayList<String>()
+                tourList.add("TODOS")
+                for (tour in it) {
+                    tourList.add(tour.name)
+                }
+                val tourAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, tourList)
+                tourAuto.setAdapter(tourAdapter)
+            }
+        }
+
+        /*
         fatherTourViewModel.getFatherTourNames.observe(this) { fatherTours ->
             fatherTours.let {
                 val tourList = ArrayList<String>()
@@ -119,7 +137,7 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
                 tourAuto.setAdapter(tourAdapter)
                 tourViewModel.getTourNames
             }
-        }
+        }*/
 
         hotelAuto.setText("TODOS")
         hotelZoneAuto.setText("TODOS")
@@ -135,34 +153,22 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
 
         hotelAuto.setOnItemClickListener { adapterView, view, i, l ->
             Log.d("Selected", i.toString())
-            var to = ""
-            to = if(binding.hourFilter.selectedItem.toString() != "23:00:00"){
-                binding.hourFilter.getItemAtPosition(binding.hourFilter.selectedItemPosition+1).toString()
-            } else{
-                "24:00:00"
-            }
-            adapter?.filterWithoutQuery(
+            adapter?.filter(
                 "TODOS",
                 hotelAuto.text.toString(),
                 tourAuto.text.toString(),
-                binding.hourFilter.selectedItem.toString()+"-"+to,
+                binding.hourFilter.selectedItem.toString(),
                 boardSwitch.isChecked
             )
         }
 
 
         tourAuto.setOnItemClickListener { adapterView, view, i, l ->
-            var to = ""
-            to = if(binding.hourFilter.selectedItem.toString() != "23:00:00"){
-                binding.hourFilter.getItemAtPosition(binding.hourFilter.selectedItemPosition+1).toString()
-            } else{
-                "24:00:00"
-            }
-            adapter?.filterWithoutQuery(
+            adapter?.filter(
                 "TODOS",
                 hotelAuto.text.toString(),
                 tourAuto.text.toString(),
-                binding.hourFilter.selectedItem.toString()+"-"+to,
+                binding.hourFilter.selectedItem.toString(),
                 boardSwitch.isChecked
             )
         }
@@ -174,22 +180,17 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
                 TODO("Not yet implemented")
+                Log.d("Nothing Selected", binding.hourFilter.selectedItem.toString())
             }
 
         }
 
         boardSwitch.setOnCheckedChangeListener { compoundButton, b ->
-            var to = ""
-            to = if(binding.hourFilter.selectedItem.toString() != "23:00:00"){
-                binding.hourFilter.getItemAtPosition(binding.hourFilter.selectedItemPosition+1).toString()
-            } else{
-                "24:00:00"
-            }
-            adapter?.filterWithoutQuery(
+            adapter?.filter(
                 "TODOS",
                 hotelAuto.text.toString(),
                 tourAuto.text.toString(),
-                binding.hourFilter.selectedItem.toString()+"-"+to,
+                binding.hourFilter.selectedItem.toString(),
                 b
             )
         }
@@ -219,18 +220,12 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
             }
 
             override fun onMenuItemActionCollapse(menuItem: MenuItem?): Boolean {
-                var to = ""
-                to = if(binding.hourFilter.selectedItem.toString() != "23:00:00"){
-                    binding.hourFilter.getItemAtPosition(binding.hourFilter.selectedItemPosition+1).toString()
-                } else{
-                    "24:00:00"
-                }
                 adapter?.myFilter("",
                     nameChecked = false,
                     confNumChecked = false,
                     hotelZoneChecked = false,
                     hotelChecked = false,
-                    binding.hourFilter.selectedItem.toString()+"-"+to,
+                    binding.hourFilter.selectedItem.toString(),
                     tourChecked = false
                 )
                 filterGroup.visibility = View.GONE
@@ -272,31 +267,45 @@ class ReservationActivity : AppCompatActivity(), ReservationAdapter.OnItemListen
         return super.onContextItemSelected(item)
     }
 
-    fun fillHourSpinner(): ArrayList<String> {
+    //TODO: Add the hour spinner method to the getReservations method
+    fun fillHourSpinner(): SpinnerAdapter {
         val spinnerArray = arrayListOf<String>()
-        for(i in 0 until 10){
-            spinnerArray.add("0$i:00:00")
+        reservationViewModel.getReservs().observe(this) { list ->
+            for(i in list.indices){
+                spinnerArray.add(list[i].reservationTime+":00")
+            }
+
         }
-        for(j in 10 until 24){
-            spinnerArray.add("$j:00:00")
-        }
-        return spinnerArray
+        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, spinnerArray)
+
+        return spinnerAdapter
     }
 
     fun getReservations(){
-        reservationViewModel.getReservations.observe(this) { reservations ->
-            // Update the cached copy of the reservations in the adapter.
-            reservations.let {
-                Log.d("Loading", "Reservations")
-                reservationProgressBar.visibility = View.INVISIBLE
-                reservationList = emptyList()
-                reservationList = it
-                Log.d("ReservationList", reservationList.toString())
-                adapter = ReservationAdapter(reservationList, this)
-                recyclerView.adapter = adapter
-                adapter!!.notifyDataSetChanged()
-            }
-        }
+        Log.d("Loading", "Reservations")
+        val spinnerArray = arrayListOf<String>()
+        reservationProgressBar.visibility = View.INVISIBLE
+        reservationList = emptyList()
+        reservationViewModel.getReservs().observe(this) { list ->
+            Log.d("List", list.toString())
+            reservationList = list
+            Log.d("ReservationList", reservationList.toString())
+            adapter = ReservationAdapter(reservationList, this)
+            recyclerView.adapter = adapter
+            adapter!!.notifyDataSetChanged()
 
+            spinnerArray.clear()
+
+            for(i in list.indices){
+                if(!spinnerArray.contains(list[i].reservationTime)) {
+                    spinnerArray.add(list[i].reservationTime)
+                }
+            }
+
+            val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, spinnerArray)
+
+            binding.hourFilter.adapter = null
+            binding.hourFilter.adapter = spinnerAdapter
+        }
     }
 }

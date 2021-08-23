@@ -11,12 +11,14 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.exinnotech.vallartaadventures.room.entity.Reservation
 import com.github.anastaciocintra.escpos.EscPos
+import com.github.anastaciocintra.escpos.EscPosConst
 import com.github.anastaciocintra.escpos.Style
 import com.github.anastaciocintra.escpos.barcode.BarCode
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
+import kotlin.collections.HashMap
 
 var bluetoothAdapter: BluetoothAdapter? = null
 var bluetoothSocket: BluetoothSocket? = null
@@ -115,7 +117,7 @@ class ScanActivity(val activity: Activity, val reservation: Reservation) {
         thread!!.start()
     }
 
-    fun printPasses(reservation: Reservation) {
+    fun printPasses(reservation: Reservation, voucher: Boolean, voucherData: HashMap<String, Any?>) {
         val paxNum = reservation.adultNum+reservation.childNum
         for (i in 0 until paxNum){
             val escPos = EscPos(outputStream)
@@ -152,6 +154,57 @@ class ScanActivity(val activity: Activity, val reservation: Reservation) {
             escPos.cut(EscPos.CutMode.FULL)
             escPos.feed(2)
             Thread.sleep(5000)
+        }
+        //TODO: Print voucher if it has payment ids 4, 8 and 18
+        if(voucher) {
+            for(j in 0 until 2) {
+                val escPos = EscPos(outputStream)
+
+                escPos.style = Style().setBold(true).setJustification(EscPosConst.Justification.Center)
+                escPos.write(voucherData["banco"].toString())
+                escPos.feed(1)
+                escPos.write("Vallarta Adventures")
+                escPos.feed(1)
+                escPos.style =
+                    Style().setBold(false).setJustification(EscPosConst.Justification.Center)
+                escPos.write("Afiliacion: ${voucherData["numAfiliacion"].toString()}")
+                escPos.feed(2)
+                escPos.write("FECHA: ${reservation.reservationDate.split("T")[0]} | HORA: ${reservation.reservationTime} pm")
+                escPos.feed(1)
+                escPos.style = Style().setBold(false)
+                escPos.write("Cliente: ${reservation.guestName}")
+                escPos.feed(1)
+                escPos.write("# Confirmacion: ${reservation.confNum}")
+                escPos.feed(1)
+                escPos.write("# Tarjeta: ${voucherData["numTarjeta"].toString()}")
+                escPos.feed(1)
+                escPos.write("VENC: ${voucherData["fechaVencimiento"].toString()}")
+                escPos.feed(1)
+                escPos.write("Importe: ${reservation.amount} MXN")
+                escPos.feed(1)
+                escPos.write("Autorizacion: ${voucherData["autorizationNumber"].toString()}")
+                escPos.feed(4)
+                escPos.style = Style().setBold(false).setJustification(EscPosConst.Justification.Center)
+                escPos.write("--------------------")
+                escPos.feed(1)
+                escPos.write("FIRMA")
+                escPos.feed(1)
+                escPos.style = Style().setBold(false)
+                escPos.write("Tipo de cambio de $1.00 MXN por MXN")
+                escPos.feed(1)
+                escPos.write("POR ESTE PAGARE ME OBLIGO INCODICIONALMENTE PAGAR A LA ORDEN DEL BANCO EMISOR EL IMPORTE DE ESTE TITULO EN LOS TERMINOS DEL CONTRATO SUSCRITO PARA EL USO DE ESTA TARJETA DE CREDITO. EN EL CASO DE OPERACIONES CON TARJETA DE DEBITO EXPRESAMENTE RECONOZCO Y ACEPTO QUE ESTE RECIBO ES EL COMPROBANTE DE LA OPERACION REALIZADA, MISMA QUE SE CONSIGNA EN PARTE SUPERIOR, Y TENDRA PLENO VALOR PROBATORIO Y FUERZA LEGAL EN VIRTUD DE QUE LO FIRME PERSONALMENTE Y/O DIGITE MI NUMERO DE ITENTIFICACION PERSONAL COMO FIRMA ELECTRONICA, EL CUAL ES EXCLUSIVO DE MI RESPONSABILIDAD PERSONALMENTE Y/O DIGITE MI NUMERO DE IDENTIFICACION PERSONAL MANIFESTANDO PLENA CONFORMIDAD AL RESPECTO.")
+                escPos.feed(1)
+                escPos.write("EL PRESENTE PAGARE SOLO SERA NEGOCIABLE CON INSTITUCIONES DE CREDITO O CON SOCIEDADES FINANCIERAS DEL OBJETO LIMITADO")
+                escPos.feed(1)
+                escPos.style = Style().setBold(true).setJustification(EscPosConst.Justification.Center).setFontSize(Style.FontSize._2, Style.FontSize._2)
+                if(j == 0){
+                    escPos.write("*  ORIGINAL  *")
+                }else{
+                    escPos.write("*  COPIA  *")
+                }
+                escPos.feed(4)
+                Thread.sleep(5000)
+            }
         }
         disconnectBT()
     }
